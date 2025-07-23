@@ -10,17 +10,19 @@ import {
   getStewRatings, 
   getPopularIngredients, 
   getMVPIngredients, 
-  getSentimentDistribution 
+  getSentimentDistribution,
+  getLatestVideo
 } from '@/lib/actions';
 
 export default async function Page() {
   // Fetch all data in parallel
-  const [stats, ratings, popularIngredients, mvpIngredients, sentimentData] = await Promise.all([
+  const [stats, ratings, popularIngredients, mvpIngredients, sentimentData, latestVideo] = await Promise.all([
     getCurrentStats(),
     getStewRatings(),
     getPopularIngredients(),
     getMVPIngredients(),
     getSentimentDistribution(),
+    getLatestVideo(),
   ]);
 
   return (
@@ -28,14 +30,16 @@ export default async function Page() {
       <Sonner />
       <div className="min-h-screen bg-gradient-background">
         <div className="container mx-auto px-4 py-8">
-          <StewHeader stats={stats} />
+          <StewHeader stats={stats} latestVideo={latestVideo} />
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="mb-8">
             <RatingChart ratings={ratings} />
-            <PopularIngredients ingredients={popularIngredients} />
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div className="lg:col-span-2">
+              <PopularIngredients ingredients={popularIngredients} />
+            </div>
             <SentimentChart data={sentimentData} />
             <MVPIngredients ingredients={mvpIngredients} />
           </div>

@@ -1,7 +1,8 @@
 'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { SentimentData } from '@/lib/actions';
 
 interface SentimentChartProps {
@@ -9,13 +10,38 @@ interface SentimentChartProps {
 }
 
 const SentimentChart = ({ data }: SentimentChartProps) => {
-  const COLORS = {
-    'Positive': 'hsl(var(--stew-amber))',
-    'Neutral': 'hsl(var(--stew-sage))',
-    'Negative': 'hsl(var(--stew-terracotta))',
+  const chartConfig = {
+    positive: {
+      label: "Positive",
+      color: "hsla(120, 70%, 50%, 1.0)",
+    },
+    experimental: {
+      label: "Experimental", 
+      color: "hsla(280, 70%, 60%, 1.0)",
+    },
+    neutral: {
+      label: "Neutral",
+      color: "hsla(45, 90%, 55%, 1.0)",
+    },
+    negative: {
+      label: "Negative",
+      color: "hsla(0, 70%, 50%, 1.0)",
+    },
+  } satisfies ChartConfig;
+
+  const getSentimentColor = (sentiment: string) => {
+    const key = sentiment.toLowerCase() as keyof typeof chartConfig;
+    return chartConfig[key]?.color || 'hsla(210, 10%, 60%, 1.0)';
   };
 
   const total = data.reduce((sum, item) => sum + item.count, 0);
+  
+  // Transform data to work better with shadcn charts
+  const chartData = data.map(item => ({
+    ...item,
+    name: item.sentiment,
+    fill: getSentimentColor(item.sentiment)
+  }));
   
   return (
     <Card className="bg-card/80 backdrop-blur-sm border-border/50">
@@ -30,51 +56,45 @@ const SentimentChart = ({ data }: SentimentChartProps) => {
       <CardContent>
         <div className="flex items-center justify-center">
           <div className="h-64 w-64">
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer config={chartConfig} className="mx-auto aspect-square">
               <PieChart>
                 <Pie
-                  data={data}
+                  data={chartData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
                   outerRadius={100}
                   paddingAngle={2}
                   dataKey="count"
+                  nameKey="name"
                   label={(entry) => `${entry.percentage}%`}
                   labelLine={false}
-                >
-                  {data.map((entry) => (
-                    <Cell 
-                      key={`cell-${entry.sentiment}`} 
-                      fill={COLORS[entry.sentiment as keyof typeof COLORS]} 
-                    />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [value, 'Count']}
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
+                />
+                <ChartTooltip
+                  content={<ChartTooltipContent hideLabel />}
                 />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
         
         <div className="grid grid-cols-2 gap-4 mt-4">
-          {data.map((item) => (
-            <div key={item.sentiment} className="flex items-center gap-2">
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: COLORS[item.sentiment as keyof typeof COLORS] }}
-              />
-              <span className="text-sm">
-                {item.sentiment}: {item.count} ({item.percentage}%)
-              </span>
-            </div>
-          ))}
+          {data.map((item) => {
+            const configKey = item.sentiment.toLowerCase() as keyof typeof chartConfig;
+            const config = chartConfig[configKey];
+            
+            return (
+              <div key={item.sentiment} className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-full" 
+                  style={{ backgroundColor: getSentimentColor(item.sentiment) }}
+                />
+                <span className="text-sm">
+                  {config?.label || item.sentiment}: {item.count} ({item.percentage}%)
+                </span>
+              </div>
+            );
+          })}
         </div>
         
         <div className="mt-6 p-4 bg-gradient-accent rounded-lg text-accent-foreground">

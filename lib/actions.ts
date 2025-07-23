@@ -8,6 +8,10 @@ export interface StewRating {
   ratingOverall: number;
   ratingRichness: number;
   ratingComplexity: number;
+  creatorSentiment: string;
+  ratingInferred: boolean;
+  richnessInferred: boolean;
+  complexityInferred: boolean;
 }
 
 export interface Ingredient {
@@ -21,6 +25,16 @@ export interface SentimentData {
   sentiment: string;
   count: number;
   percentage: number;
+}
+
+export interface Video {
+  id: number;
+  day: number;
+  tiktokUrl: string;
+  videoId: string;
+  title?: string;
+  author?: string;
+  keyQuote?: string;
 }
 
 export interface Stats {
@@ -37,11 +51,16 @@ export async function getStewRatings(): Promise<StewRating[]> {
         VideoDay as day,
         RatingOverall as ratingOverall,
         RatingRichness as ratingRichness,
-        RatingComplexity as ratingComplexity
+        RatingComplexity as ratingComplexity,
+        CreatorSentiment as creatorSentiment,
+        ratingInferred as ratingInferred,
+        richnessInferred as richnessInferred,
+        complexityInferred as complexityInferred
       FROM StewAnalysis 
       WHERE RatingOverall IS NOT NULL 
         AND RatingRichness IS NOT NULL 
         AND RatingComplexity IS NOT NULL
+        AND CreatorSentiment IS NOT NULL
       ORDER BY VideoDay ASC
     `);
     
@@ -50,6 +69,10 @@ export async function getStewRatings(): Promise<StewRating[]> {
       ratingOverall: row.ratingoverall,
       ratingRichness: row.ratingrichness,
       ratingComplexity: row.ratingcomplexity,
+      creatorSentiment: row.creatorsentiment,
+      ratingInferred: row.ratinginferred,
+      richnessInferred: row.richnessinferred,
+      complexityInferred: row.complexityinferred,
     }));
   } catch (error) {
     console.error('Error fetching stew ratings:', error);
@@ -194,5 +217,59 @@ export async function getSentimentDistribution(): Promise<SentimentData[]> {
   } catch (error) {
     console.error('Error fetching sentiment distribution:', error);
     return [];
+  }
+}
+
+// Get the latest video (by highest day number)
+export async function getLatestVideo(): Promise<Video | null> {
+  try {
+    // First, let's try to get the latest day from StewAnalysis
+    const latestDayResult = await pool.query(`
+      SELECT VideoDay, VideoID, KeyQuote
+      FROM StewAnalysis 
+      ORDER BY VideoDay DESC 
+      LIMIT 1
+    `);
+
+    if (latestDayResult.rows.length === 0) {
+      return null;
+    }
+
+    const { videoday: day, videoid, keyquote } = latestDayResult.rows[0];
+
+    // Try to find a matching video
+    const videoResult = await pool.query(`
+      SELECT id, tiktok_url, video_id, title, author
+      FROM videos 
+      WHERE video_id = $1 OR id = $2
+      LIMIT 1
+    `, [videoid, videoid]);
+
+    if (videoResult.rows.length > 0) {
+      const row = videoResult.rows[0];
+      return {
+        id: row.id,
+        day: day,
+        tiktokUrl: row.tiktok_url,
+        videoId: row.video_id,
+        title: row.title,
+        author: row.author,
+        keyQuote: keyquote,
+      };
+    }
+
+    // If no matching video found, return a generic entry with the day
+    return {
+      id: 0,
+      day: day,
+      tiktokUrl: `https://www.tiktok.com/@perpetualstew`, // Fallback URL
+      videoId: videoid?.toString() || '',
+      title: `Day ${day} Video`,
+      author: 'perpetualstew',
+      keyQuote: keyquote,
+    };
+  } catch (error) {
+    console.error('Error fetching latest video:', error);
+    return null;
   }
 } 

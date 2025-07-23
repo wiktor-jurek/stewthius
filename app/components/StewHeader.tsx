@@ -1,20 +1,53 @@
-import { Stats } from '@/lib/actions';
+'use client';
+
+import { Stats, Video } from '@/lib/actions';
+import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 interface StewHeaderProps {
   stats: Stats;
+  latestVideo: Video | null;
 }
 
-const StewHeader = ({ stats }: StewHeaderProps) => {
+const StewHeader = ({ stats, latestVideo }: StewHeaderProps) => {
   return (
     <div className="bg-gradient-primary text-primary-foreground p-8 rounded-lg shadow-warm mb-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="text-6xl animate-stew-bubble">🍲</div>
+        <div className="flex flex-col items-center text-center mb-6">
+          <div className="mb-4">
+            <Image
+              src="/logo.png"
+              alt="Stewthius Logo"
+              width={120}
+              height={120}
+              className="rounded-full"
+            />
+          </div>
           <div>
-            <h1 className="text-4xl font-bold mb-2">Perpetual Stew Analytics</h1>
-            <p className="text-lg opacity-90">
+            <h1 className="text-4xl font-bold mb-2">stewthius over time</h1>
+            <p className="text-lg opacity-90 mb-4">
               Tracking the evolution of the legendary perpetual stew
             </p>
+            {latestVideo && (
+              <div className="flex flex-col items-center gap-3">
+                <Button
+                  onClick={() => window.open(latestVideo.tiktokUrl, '_blank')}
+                  variant="default"
+                  className='hover:cursor-pointer'
+                  size="lg"
+                >
+                  <span className="mr-2">🎥</span>
+                  Day {latestVideo.day} - Latest Video
+                </Button>
+                <blockquote className="text-sm italic opacity-80 text-center max-w-md">
+                  {latestVideo.keyQuote ? (
+                    <>&ldquo;{latestVideo.keyQuote}&rdquo;</>
+                  ) : (
+                    <>&ldquo;What started as a simple stew has become a living experiment in crowdsourced cuisine&rdquo;</>
+                  )}
+                </blockquote>
+              </div>
+            )}
           </div>
         </div>
         

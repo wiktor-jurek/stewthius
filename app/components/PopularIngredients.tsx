@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Ingredient } from '@/lib/actions';
 
 interface PopularIngredientsProps {
@@ -18,31 +19,46 @@ const PopularIngredients = ({ ingredients }: PopularIngredientsProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-3">
-          {ingredients.map((ingredient, index) => (
-            <div key={ingredient.name} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <div className="text-xl font-bold text-muted-foreground">
-                  #{index + 1}
-                </div>
-                <div>
-                  <div className="font-medium text-sm">{ingredient.name}</div>
-                  <div className="text-xs text-muted-foreground">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-16">Rank</TableHead>
+              <TableHead>Ingredient</TableHead>
+              <TableHead className="w-24">Day First Added</TableHead>
+              <TableHead className="w-24">Popularity</TableHead>
+              <TableHead className="w-20 text-right">Impact</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {ingredients.map((ingredient, index) => (
+              <TableRow key={ingredient.name}>
+                <TableCell>
+                  <div className="text-lg font-bold text-muted-foreground">
+                    #{index + 1}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium">{ingredient.name}</div>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm text-muted-foreground">
                     Day {ingredient.addedDay}
                   </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <Badge variant="secondary" className="mb-1">
-                  {ingredient.popularity}%
-                </Badge>
-                <div className="text-xs text-muted-foreground">
-                  +{ingredient.impact}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="secondary">
+                    {ingredient.popularity}%
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="text-sm font-medium text-green-600">
+                    +{ingredient.impact}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
         
         <div className="mt-6 p-4 bg-gradient-accent rounded-lg text-accent-foreground">
           <h4 className="font-semibold mb-2">📊 Popularity Metrics</h4>
