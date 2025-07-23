@@ -11,6 +11,7 @@ import {
   type ColumnDef,
   type SortingState,
   type ColumnFiltersState,
+  type Row,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +36,7 @@ interface VideoTableProps {
 const VideoTable = ({ videos }: VideoTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment.toLowerCase()) {
@@ -60,6 +62,29 @@ const VideoTable = ({ videos }: VideoTableProps) => {
       return `${(count / 1000).toFixed(1)}K`;
     }
     return count.toLocaleString();
+  };
+
+  // Custom global filter function
+  const globalFilterFn = (row: Row<VideoAnalysis>, columnId: string, value: string): boolean => {
+    const searchValue = value.toLowerCase();
+    const video = row.original;
+    
+    // Search in day
+    const dayMatch = `day ${video.day}`.toLowerCase().includes(searchValue) || 
+                    video.day.toString().includes(searchValue);
+    
+    // Search in sentiment
+    const sentimentMatch = video.sentiment?.toLowerCase().includes(searchValue) || false;
+    
+    // Search in ingredients
+    const ingredientsMatch = video.ingredientsAdded?.some(ingredient => 
+      ingredient.toLowerCase().includes(searchValue)
+    ) || false;
+    
+    // Search in key quote
+    const quoteMatch = video.keyQuote?.toLowerCase().includes(searchValue) || false;
+    
+    return dayMatch || sentimentMatch || ingredientsMatch || quoteMatch;
   };
 
   const columns: ColumnDef<VideoAnalysis>[] = [
@@ -265,13 +290,16 @@ const VideoTable = ({ videos }: VideoTableProps) => {
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn: globalFilterFn,
     state: {
       sorting,
       columnFilters,
+      globalFilter,
     },
     initialState: {
       pagination: {
@@ -294,10 +322,10 @@ const VideoTable = ({ videos }: VideoTableProps) => {
         <div className="flex items-center py-4">
           <Input
             placeholder="Filter by day, sentiment, or ingredients..."
-            value={(table.getColumn('day')?.getFilterValue() as string) ?? ''}
+            value={globalFilter ?? ''}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const value = event.target.value;
-              table.getColumn('day')?.setFilterValue(value);
+              setGlobalFilter(value);
               if (value.length > 0) {
                 trackTableInteraction('video_table', 'filter', undefined, undefined);
               }
