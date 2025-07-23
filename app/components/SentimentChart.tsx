@@ -1,6 +1,6 @@
 'use client';
 
-import { PieChart, Pie, Cell } from 'recharts';
+import { PieChart, Pie } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { SentimentData } from '@/lib/actions';
