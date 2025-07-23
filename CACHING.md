@@ -38,13 +38,18 @@ Each function uses specific cache tags for selective invalidation:
 You can manually clear the cache by calling the revalidation API:
 
 ```bash
-# Clear all cache
+# Clear all cache (development)
 curl -X POST http://localhost:3000/api/revalidate \
   -H "Content-Type: application/json" \
   -d '{"type": "all"}'
 
+# Clear all cache (production)
+curl -X POST https://stewthius.com/api/revalidate \
+  -H "Content-Type: application/json" \
+  -d '{"type": "all"}'
+
 # Clear specific data type
-curl -X POST http://localhost:3000/api/revalidate \
+curl -X POST https://stewthius.com/api/revalidate \
   -H "Content-Type: application/json" \
   -d '{"type": "ingredients"}'
 ```
@@ -76,7 +81,8 @@ REVALIDATE_TOKEN=your-secret-token-here
 Then include it in API calls:
 
 ```bash
-curl -X POST http://localhost:3000/api/revalidate \
+# With authorization (production)
+curl -X POST https://stewthius.com/api/revalidate \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer your-secret-token-here" \
   -d '{"type": "all"}'
