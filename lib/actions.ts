@@ -18,7 +18,7 @@ export interface StewRating {
 export interface Ingredient {
   name: string;
   addedDay: number;
-  popularity: number;
+  timesAdded: number;
   impact: number;
 }
 
@@ -163,7 +163,7 @@ export async function getPopularIngredients(): Promise<Ingredient[]> {
           SELECT 
             i.IngredientName as name,
             MIN(sa.VideoDay) as addedDay,
-            COUNT(*) * 100.0 / (SELECT COUNT(*) FROM IngredientAdditions) as popularity,
+            COUNT(*) as timesAdded,
             AVG(CASE 
               WHEN sa_next.RatingOverall IS NOT NULL AND sa_prev.RatingOverall IS NOT NULL 
               THEN sa_next.RatingOverall - sa_prev.RatingOverall 
@@ -182,7 +182,7 @@ export async function getPopularIngredients(): Promise<Ingredient[]> {
         return result.rows.map(row => ({
           name: row.name,
           addedDay: row.addedday,
-          popularity: Math.round(row.popularity),
+          timesAdded: parseInt(row.timesadded),
           impact: Math.round((row.impact || 0) * 10) / 10,
         }));
       } catch (error) {
@@ -207,7 +207,7 @@ export async function getMVPIngredients(): Promise<Ingredient[]> {
           SELECT 
             i.IngredientName as name,
             MIN(sa.VideoDay) as addedDay,
-            COUNT(*) * 100.0 / (SELECT COUNT(*) FROM IngredientAdditions) as popularity,
+            COUNT(*) as timesAdded,
             AVG(CASE 
               WHEN sa_next.RatingOverall IS NOT NULL AND sa_prev.RatingOverall IS NOT NULL 
               THEN sa_next.RatingOverall - sa_prev.RatingOverall 
@@ -235,7 +235,7 @@ export async function getMVPIngredients(): Promise<Ingredient[]> {
         return result.rows.map(row => ({
           name: row.name,
           addedDay: row.addedday,
-          popularity: Math.round(row.popularity),
+          timesAdded: parseInt(row.timesadded),
           impact: Math.round((row.impact || 0) * 10) / 10,
         }));
       } catch (error) {

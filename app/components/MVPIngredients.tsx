@@ -37,7 +37,7 @@ const MVPIngredients = ({ ingredients }: MVPIngredientsProps) => {
                   +{ingredient.impact} impact
                 </Badge>
                 <div className="text-xs text-muted-foreground">
-                  {ingredient.popularity}% popular
+                  {ingredient.timesAdded} times added
                 </div>
               </div>
             </div>

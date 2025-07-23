@@ -25,7 +25,7 @@ const PopularIngredients = ({ ingredients }: PopularIngredientsProps) => {
               <TableHead className="w-16">Rank</TableHead>
               <TableHead>Ingredient</TableHead>
               <TableHead className="w-24">Day First Added</TableHead>
-              <TableHead className="w-24">Popularity</TableHead>
+              <TableHead className="w-24">Times Added</TableHead>
               <TableHead className="w-20 text-right">Impact</TableHead>
             </TableRow>
           </TableHeader>
@@ -47,7 +47,7 @@ const PopularIngredients = ({ ingredients }: PopularIngredientsProps) => {
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary">
-                    {ingredient.popularity}%
+                    {ingredient.timesAdded}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
@@ -61,9 +61,9 @@ const PopularIngredients = ({ ingredients }: PopularIngredientsProps) => {
         </Table>
         
         <div className="mt-6 p-4 bg-gradient-accent rounded-lg text-accent-foreground">
-          <h4 className="font-semibold mb-2">📊 Popularity Metrics</h4>
+          <h4 className="font-semibold mb-2">📊 Addition Metrics</h4>
           <p className="text-sm opacity-90">
-            Popularity is calculated based on frequency of additions across all stew updates. 
+            Shows how many times each ingredient has been added to the stew. 
             Impact shows the average rating change the day after addition.
           </p>
         </div>
