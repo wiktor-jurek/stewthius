@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -19,6 +20,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          defer
+          src="https://analytics.jurek.dev/script.js"
+          data-website-id="9a07faa5-019e-4525-83e3-cbf604dfcecf"
+        />
+      </head>
       <body
         className={`${manrope.variable} font-sans antialiased`}
       >

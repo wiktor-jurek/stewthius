@@ -1,5 +1,3 @@
-'use server';
-
 import { revalidateTag } from 'next/cache';
 
 // Cache tag constants for easy management

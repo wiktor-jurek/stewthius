@@ -3,6 +3,7 @@
 import { Stats, Video } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { trackExternalLink } from '@/lib/analytics';
 
 interface StewHeaderProps {
   stats: Stats;
@@ -31,7 +32,10 @@ const StewHeader = ({ stats, latestVideo }: StewHeaderProps) => {
             {latestVideo && (
               <div className="flex flex-col items-center gap-3">
                 <Button
-                  onClick={() => window.open(latestVideo.tiktokUrl, '_blank')}
+                  onClick={() => {
+                    trackExternalLink(latestVideo.tiktokUrl, 'tiktok', `header_latest_video_day_${latestVideo.day}`);
+                    window.open(latestVideo.tiktokUrl, '_blank');
+                  }}
                   variant="default"
                   className='hover:cursor-pointer'
                   size="lg"

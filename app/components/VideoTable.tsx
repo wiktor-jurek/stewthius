@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/table';
 import { VideoAnalysis } from '@/lib/actions';
 import { ArrowUpDown, ExternalLink, Brain, Heart, Eye, MessageCircle, Share } from 'lucide-react';
+import { trackExternalLink, trackTableInteraction } from '@/lib/analytics';
 
 interface VideoTableProps {
   videos: VideoAnalysis[];
@@ -83,7 +84,10 @@ const VideoTable = ({ videos }: VideoTableProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => window.open(video.tiktokUrl, '_blank')}
+                onClick={() => {
+                  trackExternalLink(video.tiktokUrl!, 'tiktok', `video_table_day_${video.day}`);
+                  window.open(video.tiktokUrl, '_blank');
+                }}
                 className="h-6 w-6 p-0"
               >
                 <ExternalLink className="h-3 w-3" />
@@ -291,9 +295,13 @@ const VideoTable = ({ videos }: VideoTableProps) => {
           <Input
             placeholder="Filter by day, sentiment, or ingredients..."
             value={(table.getColumn('day')?.getFilterValue() as string) ?? ''}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              table.getColumn('day')?.setFilterValue(event.target.value)
-            }
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const value = event.target.value;
+              table.getColumn('day')?.setFilterValue(value);
+              if (value.length > 0) {
+                trackTableInteraction('video_table', 'filter', undefined, undefined);
+              }
+            }}
             className="max-w-sm"
           />
         </div>
@@ -356,7 +364,10 @@ const VideoTable = ({ videos }: VideoTableProps) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.previousPage()}
+              onClick={() => {
+                trackTableInteraction('video_table', 'previous_page', table.getState().pagination.pageIndex, table.getPageCount());
+                table.previousPage();
+              }}
               disabled={!table.getCanPreviousPage()}
             >
               Previous
@@ -364,7 +375,10 @@ const VideoTable = ({ videos }: VideoTableProps) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.nextPage()}
+              onClick={() => {
+                trackTableInteraction('video_table', 'next_page', table.getState().pagination.pageIndex + 2, table.getPageCount());
+                table.nextPage();
+              }}
               disabled={!table.getCanNextPage()}
             >
               Next

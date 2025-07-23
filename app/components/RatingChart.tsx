@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { StewRating } from '@/lib/actions';
+import { trackChartInteraction } from '@/lib/analytics';
 
 interface RatingChartProps {
   ratings: StewRating[];
@@ -120,7 +121,10 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
             {(Object.keys(ratingConfig) as RatingType[]).map((type) => (
               <button
                 key={type}
-                onClick={() => setSelectedRating(type)}
+                onClick={() => {
+                  trackChartInteraction('rating_chart', 'filter_change', type);
+                  setSelectedRating(type);
+                }}
                 className={`px-3 py-1 text-sm rounded-md border transition-colors ${
                   selectedRating === type
                     ? 'bg-primary text-primary-foreground border-primary'
