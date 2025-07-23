@@ -22,7 +22,6 @@ const PopularIngredients = ({ ingredients }: PopularIngredientsProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16">Rank</TableHead>
               <TableHead>Ingredient</TableHead>
               <TableHead className="w-24">Day First Added</TableHead>
               <TableHead className="w-24">Times Added</TableHead>
@@ -32,11 +31,6 @@ const PopularIngredients = ({ ingredients }: PopularIngredientsProps) => {
           <TableBody>
             {ingredients.map((ingredient, index) => (
               <TableRow key={ingredient.name}>
-                <TableCell>
-                  <div className="text-lg font-bold text-muted-foreground">
-                    #{index + 1}
-                  </div>
-                </TableCell>
                 <TableCell>
                   <div className="font-medium">{ingredient.name}</div>
                 </TableCell>

@@ -151,7 +151,8 @@ const VideoTable = ({ videos }: VideoTableProps) => {
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           className="h-auto p-0 font-medium"
         >
-          Popularity
+          <span className="hidden md:inline">Popularity</span>
+          <span className="md:hidden">❤️</span>
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
@@ -166,19 +167,19 @@ const VideoTable = ({ videos }: VideoTableProps) => {
               </div>
             )}
             {video.viewCount !== undefined && video.viewCount > 0 && (
-              <div className="flex items-center gap-1">
+              <div className="hidden md:flex items-center gap-1">
                 <Eye className="h-3 w-3 text-blue-500" />
                 <span>{formatCount(video.viewCount)}</span>
               </div>
             )}
             {video.commentCount !== undefined && video.commentCount > 0 && (
-              <div className="flex items-center gap-1">
+              <div className="hidden md:flex items-center gap-1">
                 <MessageCircle className="h-3 w-3 text-green-500" />
                 <span>{formatCount(video.commentCount)}</span>
               </div>
             )}
             {video.shareCount !== undefined && video.shareCount > 0 && (
-              <div className="flex items-center gap-1">
+              <div className="hidden md:flex items-center gap-1">
                 <Share className="h-3 w-3 text-purple-500" />
                 <span>{formatCount(video.shareCount)}</span>
               </div>
@@ -198,7 +199,8 @@ const VideoTable = ({ videos }: VideoTableProps) => {
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           className="h-auto p-0 font-medium"
         >
-          Rating
+          <span className="hidden md:inline">Rating</span>
+          <span className="md:hidden">⭐</span>
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
@@ -220,7 +222,7 @@ const VideoTable = ({ videos }: VideoTableProps) => {
                   </span>
                 )}
               </div>
-              <div className="flex gap-1">
+              <div className="hidden md:flex gap-1">
                 {[...Array(10)].map((_, i) => (
                   <div
                     key={i}
@@ -235,7 +237,7 @@ const VideoTable = ({ videos }: VideoTableProps) => {
                 ))}
               </div>
               {isInferred && (
-                <Badge variant="outline" className="text-xs mt-1 bg-blue-50 text-blue-700 border-blue-200">
+                <Badge variant="outline" className="text-xs mt-1 bg-blue-50 text-blue-700 border-blue-200 hidden md:inline-flex">
                   AI Inferred
                 </Badge>
               )}
@@ -270,12 +272,14 @@ const VideoTable = ({ videos }: VideoTableProps) => {
     },
     {
       accessorKey: 'keyQuote',
-      header: 'Key Quote',
+      header: () => (
+        <span className="hidden md:inline">Key Quote</span>
+      ),
       cell: ({ row }) => {
         const quote = row.getValue('keyQuote') as string;
-        if (!quote) return <span className="text-muted-foreground">—</span>;
+        if (!quote) return <span className="text-muted-foreground hidden md:inline">—</span>;
         return (
-          <div className="max-w-xs">
+          <div className="max-w-xs hidden md:block">
             <p className="text-sm italic text-muted-foreground line-clamp-2">
               &ldquo;{quote}&rdquo;
             </p>
@@ -340,7 +344,7 @@ const VideoTable = ({ videos }: VideoTableProps) => {
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className="text-xs px-2 py-2">
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -359,9 +363,10 @@ const VideoTable = ({ videos }: VideoTableProps) => {
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className="text-xs"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="px-2 py-2">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -374,7 +379,7 @@ const VideoTable = ({ videos }: VideoTableProps) => {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-center text-xs px-2 py-2"
                   >
                     No results.
                   </TableCell>

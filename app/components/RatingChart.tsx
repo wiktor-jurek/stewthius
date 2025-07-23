@@ -103,8 +103,8 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
   return (
     <Card className="bg-card/80 backdrop-blur-sm border-border/50">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+          <div className="flex-1">
             <CardTitle className="flex items-center gap-2">
               📊 {currentConfig.label} Evolution
             </CardTitle>
@@ -117,7 +117,7 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
               </div>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 md:flex-row">
             {(Object.keys(ratingConfig) as RatingType[]).map((type) => (
               <button
                 key={type}
