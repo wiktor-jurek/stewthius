@@ -5,24 +5,27 @@ import RatingChart from '@/app/components/RatingChart';
 import PopularIngredients from '@/app/components/PopularIngredients';
 import SentimentChart from '@/app/components/SentimentChart';
 import MVPIngredients from '@/app/components/MVPIngredients';
+import VideoTable from '@/app/components/VideoTable';
 import { 
   getCurrentStats, 
   getStewRatings, 
   getPopularIngredients, 
   getMVPIngredients, 
   getSentimentDistribution,
-  getLatestVideo
+  getLatestVideo,
+  getAllVideosAnalysis
 } from '@/lib/actions';
 
 export default async function Page() {
   // Fetch all data in parallel
-  const [stats, ratings, popularIngredients, mvpIngredients, sentimentData, latestVideo] = await Promise.all([
+  const [stats, ratings, popularIngredients, mvpIngredients, sentimentData, latestVideo, videosAnalysis] = await Promise.all([
     getCurrentStats(),
     getStewRatings(),
     getPopularIngredients(),
     getMVPIngredients(),
     getSentimentDistribution(),
     getLatestVideo(),
+    getAllVideosAnalysis(),
   ]);
 
   return (
@@ -40,8 +43,11 @@ export default async function Page() {
             <div className="lg:col-span-2">
               <PopularIngredients ingredients={popularIngredients} />
             </div>
-            <SentimentChart data={sentimentData} />
             <MVPIngredients ingredients={mvpIngredients} />
+          </div>
+
+          <div className="mb-8">
+            <VideoTable videos={videosAnalysis} />
           </div>
         </div>
       </div>
