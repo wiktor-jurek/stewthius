@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     description: "Data-driven analysis of the internet's most ambitious culinary experiment",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "https://stewthius.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Stewthius - Perpetual Stew Analytics",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Stewthius - Perpetual Stew Analytics",
     description: "Data-driven analysis of the internet's most ambitious culinary experiment",
-    images: ["/og-image.jpg"],
+    images: ["https://stewthius.com/og-image.jpg"],
   },
 };
 
