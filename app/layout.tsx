@@ -10,10 +10,10 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   title: "Stewthius - Perpetual Stew Analytics",
-  description: "Data-driven analysis of the internet's most ambitious culinary experiment",
+  description: "Comprehensive data analytics and insights for the internet's most ambitious perpetual stew experiment. Track ingredients, sentiment, and community engagement.",
   openGraph: {
     title: "Stewthius - Perpetual Stew Analytics",
-    description: "Data-driven analysis of the internet's most ambitious culinary experiment",
+    description: "Comprehensive data analytics and insights for the internet's most ambitious perpetual stew experiment. Track ingredients, sentiment, and community engagement.",
     images: [
       {
         url: "https://stewthius.com/og-image.jpg",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Stewthius - Perpetual Stew Analytics",
-    description: "Data-driven analysis of the internet's most ambitious culinary experiment",
+    description: "Comprehensive data analytics and insights for the internet's most ambitious perpetual stew experiment. Track ingredients, sentiment, and community engagement.",
     images: ["https://stewthius.com/og-image.jpg"],
   },
 };
