@@ -40,6 +40,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
+        <meta name="image" property="og:image" content="https://stewthius.com/og-image.jpg" />
+
         <Script
           defer
           src="https://analytics.jurek.dev/script.js"
