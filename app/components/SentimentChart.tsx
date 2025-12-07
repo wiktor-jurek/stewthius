@@ -67,10 +67,11 @@ const SentimentChart = ({ data }: SentimentChartProps) => {
                   paddingAngle={2}
                   dataKey="count"
                   nameKey="name"
-                  label={(entry) => `${entry.percentage}%`}
+                  label={(entry) => `${entry.percent}%`}
                   labelLine={false}
                 />
                 <ChartTooltip
+                  cursor={false}
                   content={<ChartTooltipContent hideLabel />}
                 />
               </PieChart>
