@@ -18,18 +18,18 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
   const ratingConfig = {
     overall: {
       key: 'rating',
-      label: 'Overall Rating',
-      description: 'Overall taste and satisfaction rating • Colors by sentiment: green (positive), purple (experimental), yellow (neutral), red (negative) • Transparent bars indicate AI-inferred ratings'
+      label: 'Overall',
+      description: 'Overall taste and satisfaction · Colored by sentiment: green (positive), purple (experimental), amber (neutral), red (negative) · Translucent bars = AI-inferred'
     },
     richness: {
       key: 'richness', 
       label: 'Richness',
-      description: 'Depth and richness of flavors • Colors by sentiment: green (positive), purple (experimental), yellow (neutral), red (negative) • Transparent bars indicate AI-inferred ratings'
+      description: 'Depth and richness of flavors · Colored by sentiment: green (positive), purple (experimental), amber (neutral), red (negative) · Translucent bars = AI-inferred'
     },
     complexity: {
       key: 'complexity',
       label: 'Complexity', 
-      description: 'Complexity and sophistication of taste • Colors by sentiment: green (positive), purple (experimental), yellow (neutral), red (negative) • Transparent bars indicate AI-inferred ratings'
+      description: 'Complexity and sophistication of taste · Colored by sentiment: green (positive), purple (experimental), amber (neutral), red (negative) · Translucent bars = AI-inferred'
     }
   };
 
@@ -38,15 +38,15 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
     
     switch (sentiment.toLowerCase()) {
       case 'positive':
-        return `hsla(120, 70%, 50%, ${opacity})`; // Green for positive sentiment
+        return `rgba(74, 124, 89, ${opacity})`;
       case 'experimental':
-        return `hsla(280, 70%, 60%, ${opacity})`; // Purple for experimental sentiment
+        return `rgba(123, 94, 167, ${opacity})`;
       case 'neutral':
-        return `hsla(45, 90%, 55%, ${opacity})`; // Yellow/amber for neutral sentiment
+        return `rgba(201, 148, 62, ${opacity})`;
       case 'negative':
-        return `hsla(0, 70%, 50%, ${opacity})`; // Red for negative sentiment
+        return `rgba(188, 71, 73, ${opacity})`;
       default:
-        return `hsla(210, 10%, 60%, ${opacity})`; // Gray for unknown sentiment
+        return `rgba(139, 115, 85, ${opacity})`;
     }
   };
 
@@ -73,7 +73,6 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
       complexity: rating.ratingComplexity,
       sentiment: rating.creatorSentiment,
       isInferred: isInferred,
-      // Store all inferred statuses for tooltip and calculations
       ratingInferred: rating.ratingInferred,
       richnessInferred: rating.richnessInferred,
       complexityInferred: rating.complexityInferred,
@@ -83,7 +82,6 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
 
   const currentConfig = ratingConfig[selectedRating];
   
-  // Get inferred count for current rating type
   const getInferredCount = () => {
     switch (selectedRating) {
       case 'overall':
@@ -106,7 +104,7 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
           <div className="flex-1">
             <CardTitle className="flex items-center gap-2">
-              📊 {currentConfig.label} Evolution
+              🍲 The Stew&apos;s Journey
             </CardTitle>
             <CardDescription className="mt-2">
               {currentConfig.description}
@@ -125,10 +123,10 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
                   trackChartInteraction('rating_chart', 'filter_change', type);
                   setSelectedRating(type);
                 }}
-                className={`px-3 py-1 text-sm rounded-md border transition-colors ${
+                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors font-medium ${
                   selectedRating === type
                     ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-background text-muted-foreground border-border hover:bg-muted'
+                    : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
                 }`}
               >
                 {ratingConfig[type].label}
@@ -141,33 +139,33 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" className="opacity-40" />
               <XAxis 
                 dataKey="day" 
-                className="text-xs"
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
               />
               <YAxis 
                 domain={[0, 10]} 
-                className="text-xs"
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
+                  backgroundColor: 'var(--card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  boxShadow: '0 4px 12px rgba(217, 119, 47, 0.08)',
+                  color: 'var(--card-foreground)',
                 }}
-                formatter={(value: number, name: string, props: { payload?: { isInferred?: boolean; ratingInferred?: boolean; richnessInferred?: boolean; complexityInferred?: boolean } }) => {
-                  // Get the appropriate inferred status based on the current rating type
+                formatter={(value, name, props) => {
                   let isInferred = false;
-                  if (props.payload) {
-                    if (name.includes('Overall')) {
-                      isInferred = props.payload.ratingInferred || false;
-                    } else if (name.includes('Richness')) {
-                      isInferred = props.payload.richnessInferred || false;
-                    } else if (name.includes('Complexity')) {
-                      isInferred = props.payload.complexityInferred || false;
+                  const payload = props?.payload as Record<string, boolean> | undefined;
+                  if (payload) {
+                    if (String(name).includes('Overall')) {
+                      isInferred = payload.ratingInferred || false;
+                    } else if (String(name).includes('Richness')) {
+                      isInferred = payload.richnessInferred || false;
+                    } else if (String(name).includes('Complexity')) {
+                      isInferred = payload.complexityInferred || false;
                     }
                   }
                   
@@ -180,7 +178,7 @@ const RatingChart = ({ ratings }: RatingChartProps) => {
               <Bar 
                 dataKey={currentConfig.key}
                 name={currentConfig.label}
-                radius={[4, 4, 0, 0]}
+                radius={[6, 6, 0, 0]}
               >
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />

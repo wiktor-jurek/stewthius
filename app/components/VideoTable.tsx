@@ -41,15 +41,15 @@ const VideoTable = ({ videos }: VideoTableProps) => {
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment.toLowerCase()) {
       case 'positive':
-        return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-herb-green/10 text-herb-green border-herb-green/30';
       case 'experimental':
-        return 'bg-purple-100 text-purple-800 border-purple-300';
+        return 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700';
       case 'neutral':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700';
       case 'negative':
-        return 'bg-red-100 text-red-800 border-red-300';
+        return 'bg-burnt-tomato/10 text-burnt-tomato border-burnt-tomato/30';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -64,24 +64,16 @@ const VideoTable = ({ videos }: VideoTableProps) => {
     return count.toLocaleString();
   };
 
-  // Custom global filter function
   const globalFilterFn = (row: Row<VideoAnalysis>, columnId: string, value: string): boolean => {
     const searchValue = value.toLowerCase();
     const video = row.original;
     
-    // Search in day
     const dayMatch = `day ${video.day}`.toLowerCase().includes(searchValue) || 
                     video.day.toString().includes(searchValue);
-    
-    // Search in sentiment
     const sentimentMatch = video.sentiment?.toLowerCase().includes(searchValue) || false;
-    
-    // Search in ingredients
     const ingredientsMatch = video.ingredientsAdded?.some(ingredient => 
       ingredient.toLowerCase().includes(searchValue)
     ) || false;
-    
-    // Search in key quote
     const quoteMatch = video.keyQuote?.toLowerCase().includes(searchValue) || false;
     
     return dayMatch || sentimentMatch || ingredientsMatch || quoteMatch;
@@ -162,25 +154,25 @@ const VideoTable = ({ videos }: VideoTableProps) => {
           <div className="flex flex-col gap-1 text-xs">
             {video.likeCount !== undefined && video.likeCount > 0 && (
               <div className="flex items-center gap-1">
-                <Heart className="h-3 w-3 text-red-500" />
+                <Heart className="h-3 w-3 text-burnt-tomato" />
                 <span className="font-medium">{formatCount(video.likeCount)}</span>
               </div>
             )}
             {video.viewCount !== undefined && video.viewCount > 0 && (
               <div className="hidden md:flex items-center gap-1">
-                <Eye className="h-3 w-3 text-blue-500" />
+                <Eye className="h-3 w-3 text-broth-amber" />
                 <span>{formatCount(video.viewCount)}</span>
               </div>
             )}
             {video.commentCount !== undefined && video.commentCount > 0 && (
               <div className="hidden md:flex items-center gap-1">
-                <MessageCircle className="h-3 w-3 text-green-500" />
+                <MessageCircle className="h-3 w-3 text-herb-green" />
                 <span>{formatCount(video.commentCount)}</span>
               </div>
             )}
             {video.shareCount !== undefined && video.shareCount > 0 && (
               <div className="hidden md:flex items-center gap-1">
-                <Share className="h-3 w-3 text-purple-500" />
+                <Share className="h-3 w-3 text-chart-5" />
                 <span>{formatCount(video.shareCount)}</span>
               </div>
             )}
@@ -209,16 +201,27 @@ const VideoTable = ({ videos }: VideoTableProps) => {
         const video = row.original;
         const isInferred = video.ratingInferred;
         
+        const ratingStyle =
+          rating >= 9
+            ? 'text-base font-extrabold text-broth-amber drop-shadow-[0_0_6px_rgba(217,119,47,0.4)]'
+            : rating >= 7
+              ? 'text-sm font-bold text-herb-green'
+              : rating <= 3
+                ? 'text-sm font-bold text-burnt-tomato [transform:rotate(-1deg)_skewX(-2deg)]'
+                : rating <= 5
+                  ? 'text-sm font-medium text-burnt-tomato/80'
+                  : 'text-sm font-medium';
+
         return (
           <div className="flex items-center gap-2">
             <div className="flex flex-col">
               <div className="flex items-center gap-1">
-                <span className={`font-medium ${isInferred ? 'opacity-70' : ''}`}>
+                <span className={`${ratingStyle} ${isInferred ? 'opacity-70' : ''}`}>
                   {rating}/10
                 </span>
                 {isInferred && (
                   <span title="AI Inferred Rating">
-                    <Brain className="h-3 w-3 text-blue-500" />
+                    <Brain className="h-3 w-3 text-broth-amber" />
                   </span>
                 )}
               </div>
@@ -229,15 +232,15 @@ const VideoTable = ({ videos }: VideoTableProps) => {
                     className={`w-2 h-2 rounded-full ${
                       i < rating 
                         ? isInferred 
-                          ? 'bg-amber-300 opacity-60' 
-                          : 'bg-amber-400'
-                        : 'bg-gray-200'
+                          ? 'bg-broth-amber/50' 
+                          : 'bg-broth-amber'
+                        : 'bg-border'
                     }`}
                   />
                 ))}
               </div>
               {isInferred && (
-                <Badge variant="outline" className="text-xs mt-1 bg-blue-50 text-blue-700 border-blue-200 hidden md:inline-flex">
+                <Badge variant="outline" className="text-xs mt-1 bg-broth-amber/10 text-broth-amber border-broth-amber/30 hidden md:inline-flex">
                   AI Inferred
                 </Badge>
               )}
@@ -277,10 +280,19 @@ const VideoTable = ({ videos }: VideoTableProps) => {
       ),
       cell: ({ row }) => {
         const quote = row.getValue('keyQuote') as string;
+        const sentiment = row.original.sentiment?.toLowerCase();
         if (!quote) return <span className="text-muted-foreground hidden md:inline">—</span>;
+
+        const quoteStyle =
+          sentiment === 'negative'
+            ? 'text-sm font-semibold italic text-burnt-tomato/90 line-clamp-3'
+            : sentiment === 'positive' && row.original.ratingOverall >= 8
+              ? 'text-sm italic text-herb-green/80 line-clamp-2'
+              : 'text-sm italic text-muted-foreground line-clamp-2';
+
         return (
           <div className="max-w-xs hidden md:block">
-            <p className="text-sm italic text-muted-foreground line-clamp-2">
+            <p className={quoteStyle}>
               &ldquo;{quote}&rdquo;
             </p>
           </div>
@@ -316,16 +328,16 @@ const VideoTable = ({ videos }: VideoTableProps) => {
     <Card className="bg-card/80 backdrop-blur-sm border-border/50">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          📊 Video Analysis Data
+          📝 The Tasting Notes
         </CardTitle>
         <CardDescription>
-          Complete analysis of all videos with ratings, sentiment, and ingredients
+          Every chapter of the stew&apos;s story — ratings, sentiment, and ingredients from each day
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center py-4">
           <Input
-            placeholder="Filter by day, sentiment, or ingredients..."
+            placeholder="Search by day, sentiment, or ingredients..."
             value={globalFilter ?? ''}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const value = event.target.value;
@@ -337,7 +349,7 @@ const VideoTable = ({ videos }: VideoTableProps) => {
             className="max-w-sm"
           />
         </div>
-        <div className="rounded-md border">
+        <div className="rounded-xl border overflow-hidden">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -391,7 +403,7 @@ const VideoTable = ({ videos }: VideoTableProps) => {
         <div className="flex items-center justify-between space-x-2 py-4">
           <div className="text-sm text-muted-foreground">
             Showing {table.getFilteredRowModel().rows.length} of{' '}
-            {videos.length} video(s)
+            {videos.length} tasting note(s)
           </div>
           <div className="flex items-center space-x-2">
             <Button
@@ -423,4 +435,4 @@ const VideoTable = ({ videos }: VideoTableProps) => {
   );
 };
 
-export default VideoTable; 
+export default VideoTable;

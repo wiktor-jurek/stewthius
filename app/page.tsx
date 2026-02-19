@@ -1,9 +1,9 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import StewHeader from '@/app/components/StewHeader';
-import RatingChart from '@/app/components/RatingChart';
-import PopularIngredients from '@/app/components/PopularIngredients';
-import MVPIngredients from '@/app/components/MVPIngredients';
+import BrothLine from '@/app/components/BrothLine';
+import TopographyOfTaste from '@/app/components/TopographyOfTaste';
+import IngredientBubbles from '@/app/components/IngredientBubbles';
 import VideoTable from '@/app/components/VideoTable';
 import { 
   getCurrentStats, 
@@ -15,7 +15,6 @@ import {
 } from '@/lib/actions';
 
 export default async function Page() {
-  // Fetch all data in parallel
   const [stats, ratings, popularIngredients, mvpIngredients, latestVideo, videosAnalysis] = await Promise.all([
     getCurrentStats(),
     getStewRatings(),
@@ -29,23 +28,24 @@ export default async function Page() {
     <TooltipProvider>
       <Sonner />
       <div className="min-h-screen bg-gradient-background">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 space-y-16">
           <StewHeader stats={stats} latestVideo={latestVideo} />
-          
-          <div className="mb-8">
-            <RatingChart ratings={ratings} />
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            <div className="lg:col-span-2">
-              <PopularIngredients ingredients={popularIngredients} />
-            </div>
-            <MVPIngredients ingredients={mvpIngredients} />
-          </div>
 
-          <div className="mb-8">
+          <section>
+            <BrothLine ratings={ratings} videos={videosAnalysis} />
+          </section>
+
+          <section>
+            <TopographyOfTaste videos={videosAnalysis} />
+          </section>
+
+          <section>
+            <IngredientBubbles popular={popularIngredients} mvp={mvpIngredients} />
+          </section>
+
+          <section>
             <VideoTable videos={videosAnalysis} />
-          </div>
+          </section>
         </div>
       </div>
     </TooltipProvider>

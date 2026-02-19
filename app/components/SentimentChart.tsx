@@ -13,30 +13,29 @@ const SentimentChart = ({ data }: SentimentChartProps) => {
   const chartConfig = {
     positive: {
       label: "Positive",
-      color: "hsla(120, 70%, 50%, 1.0)",
+      color: "rgba(74, 124, 89, 1)",
     },
     experimental: {
       label: "Experimental", 
-      color: "hsla(280, 70%, 60%, 1.0)",
+      color: "rgba(123, 94, 167, 1)",
     },
     neutral: {
       label: "Neutral",
-      color: "hsla(45, 90%, 55%, 1.0)",
+      color: "rgba(201, 148, 62, 1)",
     },
     negative: {
       label: "Negative",
-      color: "hsla(0, 70%, 50%, 1.0)",
+      color: "rgba(188, 71, 73, 1)",
     },
   } satisfies ChartConfig;
 
   const getSentimentColor = (sentiment: string) => {
     const key = sentiment.toLowerCase() as keyof typeof chartConfig;
-    return chartConfig[key]?.color || 'hsla(210, 10%, 60%, 1.0)';
+    return chartConfig[key]?.color || 'rgba(139, 115, 85, 1)';
   };
 
   const total = data.reduce((sum, item) => sum + item.count, 0);
   
-  // Transform data to work better with shadcn charts
   const chartData = data.map(item => ({
     ...item,
     name: item.sentiment,
@@ -50,7 +49,7 @@ const SentimentChart = ({ data }: SentimentChartProps) => {
           😊 Creator Sentiment
         </CardTitle>
         <CardDescription>
-          Overall mood and sentiment analysis from stew updates
+          The emotional journey of every stew tasting
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -99,7 +98,7 @@ const SentimentChart = ({ data }: SentimentChartProps) => {
         </div>
         
         <div className="mt-6 p-4 bg-gradient-accent rounded-lg text-accent-foreground">
-          <h4 className="font-semibold mb-2">📈 Sentiment Trends</h4>
+          <h4 className="font-semibold font-serif mb-2">📈 Sentiment Trends</h4>
           <p className="text-sm opacity-90">
             Based on {total} analyzed updates. Sentiment reflects the creator&apos;s mood and 
             reaction to each day&apos;s stew tasting experience.
