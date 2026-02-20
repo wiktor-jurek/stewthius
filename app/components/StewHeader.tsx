@@ -1,9 +1,7 @@
-'use client';
-
 import { Stats, Video } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { trackExternalLink } from '@/lib/analytics';
+import Link from 'next/link';
 
 interface StewHeaderProps {
   stats: Stats;
@@ -73,16 +71,15 @@ const StewHeader = ({ stats, latestVideo }: StewHeaderProps) => {
             {latestVideo && (
               <div className="flex flex-col items-center gap-3">
                 <Button
-                  onClick={() => {
-                    trackExternalLink(latestVideo.tiktokUrl, 'tiktok', `header_latest_video_day_${latestVideo.day}`);
-                    window.open(latestVideo.tiktokUrl, '_blank');
-                  }}
+                  asChild
                   variant="secondary"
                   className='hover:cursor-pointer bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm'
                   size="lg"
                 >
-                  <span className="mr-1">🎥</span>
-                  Day {latestVideo.day} — Latest Video
+                  <Link href={`/video/${latestVideo.day}`}>
+                    <span className="mr-1">🎥</span>
+                    Day {latestVideo.day} — Latest Video
+                  </Link>
                 </Button>
                 <blockquote className="text-sm italic opacity-80 text-center max-w-md">
                   {latestVideo.keyQuote ? (
@@ -93,6 +90,12 @@ const StewHeader = ({ stats, latestVideo }: StewHeaderProps) => {
                 </blockquote>
               </div>
             )}
+            <Link
+              href="/stats"
+              className="inline-flex items-center gap-1.5 text-sm opacity-80 hover:opacity-100 transition-opacity mt-3"
+            >
+              🔬 Explore the Stew Lab →
+            </Link>
           </div>
         </div>
         

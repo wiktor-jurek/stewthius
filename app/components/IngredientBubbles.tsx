@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Ingredient } from '@/lib/actions';
 import { getIngredientIcon, getSentimentColor } from '@/lib/utils';
 
@@ -31,6 +32,7 @@ function impactColor(impact: number): string {
 }
 
 const IngredientBubbles = ({ popular, mvp }: IngredientBubblesProps) => {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number | null>(null);
   const nodesRef = useRef<BubbleNode[]>([]);
@@ -211,7 +213,8 @@ const IngredientBubbles = ({ popular, mvp }: IngredientBubblesProps) => {
                 key={n.name}
                 onMouseEnter={() => setHoveredName(n.name)}
                 onMouseLeave={() => setHoveredName(null)}
-                style={{ cursor: 'grab' }}
+                onClick={() => router.push(`/ingredient/${encodeURIComponent(n.name.toLowerCase().replace(/\s+/g, '-'))}`)}
+                style={{ cursor: 'pointer' }}
               >
                 <circle
                   cx={n.x}
@@ -296,6 +299,7 @@ const IngredientBubbles = ({ popular, mvp }: IngredientBubblesProps) => {
             {hovered.isMvp && (
               <div className="text-broth-amber font-medium">🏆 Flavor Champion</div>
             )}
+            <div className="text-primary font-medium mt-0.5">Click for details →</div>
           </div>
         </div>
       )}

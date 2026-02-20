@@ -26,8 +26,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { VideoAnalysis } from '@/lib/actions';
-import { ArrowUpDown, ExternalLink, Brain, Heart, Eye, MessageCircle, Share } from 'lucide-react';
-import { trackExternalLink, trackTableInteraction } from '@/lib/analytics';
+import Link from 'next/link';
+import { ArrowUpDown, Brain, Heart, Eye, MessageCircle, Share } from 'lucide-react';
+import { trackTableInteraction } from '@/lib/analytics';
 
 interface VideoTableProps {
   videos: VideoAnalysis[];
@@ -40,14 +41,16 @@ const VideoTable = ({ videos }: VideoTableProps) => {
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment.toLowerCase()) {
+      case 'super positive':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700';
       case 'positive':
         return 'bg-herb-green/10 text-herb-green border-herb-green/30';
-      case 'experimental':
-        return 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700';
       case 'neutral':
         return 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700';
       case 'negative':
         return 'bg-burnt-tomato/10 text-burnt-tomato border-burnt-tomato/30';
+      case 'super negative':
+        return 'bg-red-100 text-red-900 border-red-400 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700';
       default:
         return 'bg-muted text-muted-foreground border-border';
     }
@@ -67,15 +70,15 @@ const VideoTable = ({ videos }: VideoTableProps) => {
   const globalFilterFn = (row: Row<VideoAnalysis>, columnId: string, value: string): boolean => {
     const searchValue = value.toLowerCase();
     const video = row.original;
-    
-    const dayMatch = `day ${video.day}`.toLowerCase().includes(searchValue) || 
-                    video.day.toString().includes(searchValue);
+
+    const dayMatch = `day ${video.day}`.toLowerCase().includes(searchValue) ||
+      video.day.toString().includes(searchValue);
     const sentimentMatch = video.sentiment?.toLowerCase().includes(searchValue) || false;
-    const ingredientsMatch = video.ingredientsAdded?.some(ingredient => 
+    const ingredientsMatch = video.ingredientsAdded?.some(ingredient =>
       ingredient.toLowerCase().includes(searchValue)
     ) || false;
     const quoteMatch = video.keyQuote?.toLowerCase().includes(searchValue) || false;
-    
+
     return dayMatch || sentimentMatch || ingredientsMatch || quoteMatch;
   };
 
@@ -95,22 +98,12 @@ const VideoTable = ({ videos }: VideoTableProps) => {
       cell: ({ row }) => {
         const video = row.original;
         return (
-          <div className="flex items-center gap-2">
-            <span className="font-medium">Day {video.day}</span>
-            {video.tiktokUrl && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  trackExternalLink(video.tiktokUrl!, 'tiktok', `video_table_day_${video.day}`);
-                  window.open(video.tiktokUrl, '_blank');
-                }}
-                className="h-6 w-6 p-0"
-              >
-                <ExternalLink className="h-3 w-3" />
-              </Button>
-            )}
-          </div>
+          <Link
+            href={`/video/${video.day}`}
+            className="font-medium hover:text-broth-amber transition-colors"
+          >
+            Day {video.day}
+          </Link>
         );
       },
     },
@@ -200,7 +193,7 @@ const VideoTable = ({ videos }: VideoTableProps) => {
         const rating = row.getValue('ratingOverall') as number;
         const video = row.original;
         const isInferred = video.ratingInferred;
-        
+
         const ratingStyle =
           rating >= 9
             ? 'text-base font-extrabold text-broth-amber drop-shadow-[0_0_6px_rgba(217,119,47,0.4)]'
@@ -229,13 +222,12 @@ const VideoTable = ({ videos }: VideoTableProps) => {
                 {[...Array(10)].map((_, i) => (
                   <div
                     key={i}
-                    className={`w-2 h-2 rounded-full ${
-                      i < rating 
-                        ? isInferred 
-                          ? 'bg-broth-amber/50' 
+                    className={`w-2 h-2 rounded-full ${i < rating
+                        ? isInferred
+                          ? 'bg-broth-amber/50'
                           : 'bg-broth-amber'
                         : 'bg-border'
-                    }`}
+                      }`}
                   />
                 ))}
               </div>
@@ -284,9 +276,9 @@ const VideoTable = ({ videos }: VideoTableProps) => {
         if (!quote) return <span className="text-muted-foreground hidden md:inline">—</span>;
 
         const quoteStyle =
-          sentiment === 'negative'
+          sentiment === 'negative' || sentiment === 'super negative'
             ? 'text-sm font-semibold italic text-burnt-tomato/90 line-clamp-3'
-            : sentiment === 'positive' && row.original.ratingOverall >= 8
+            : (sentiment === 'positive' || sentiment === 'super positive') && row.original.ratingOverall >= 8
               ? 'text-sm italic text-herb-green/80 line-clamp-2'
               : 'text-sm italic text-muted-foreground line-clamp-2';
 
@@ -360,9 +352,9 @@ const VideoTable = ({ videos }: VideoTableProps) => {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

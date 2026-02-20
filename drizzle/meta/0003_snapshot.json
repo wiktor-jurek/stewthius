@@ -1,0 +1,824 @@
+{
+  "id": "65ffe768-c868-46b0-abe4-3d538a12d1ba",
+  "prevId": "a8527bd6-7935-4ede-9b9c-ed282288df16",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.ingredient_additions": {
+      "name": "ingredient_additions",
+      "schema": "",
+      "columns": {
+        "addition_id": {
+          "name": "addition_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "analysis_id": {
+          "name": "analysis_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingredient_id": {
+          "name": "ingredient_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prep_style": {
+          "name": "prep_style",
+          "type": "prep_style",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "comment": {
+          "name": "comment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "ingredient_additions_analysis_idx": {
+          "name": "ingredient_additions_analysis_idx",
+          "columns": [
+            {
+              "expression": "analysis_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ingredient_additions_ingredient_idx": {
+          "name": "ingredient_additions_ingredient_idx",
+          "columns": [
+            {
+              "expression": "ingredient_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ingredient_additions_analysis_id_stew_analysis_analysis_id_fk": {
+          "name": "ingredient_additions_analysis_id_stew_analysis_analysis_id_fk",
+          "tableFrom": "ingredient_additions",
+          "tableTo": "stew_analysis",
+          "columnsFrom": [
+            "analysis_id"
+          ],
+          "columnsTo": [
+            "analysis_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ingredient_additions_ingredient_id_ingredients_ingredient_id_fk": {
+          "name": "ingredient_additions_ingredient_id_ingredients_ingredient_id_fk",
+          "tableFrom": "ingredient_additions",
+          "tableTo": "ingredients",
+          "columnsFrom": [
+            "ingredient_id"
+          ],
+          "columnsTo": [
+            "ingredient_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ingredients": {
+      "name": "ingredients",
+      "schema": "",
+      "columns": {
+        "ingredient_id": {
+          "name": "ingredient_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "ingredient_name": {
+          "name": "ingredient_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingredient_category": {
+          "name": "ingredient_category",
+          "type": "ingredient_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "ingredients_ingredient_name_unique": {
+          "name": "ingredients_ingredient_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "ingredient_name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.stew_analysis": {
+      "name": "stew_analysis",
+      "schema": "",
+      "columns": {
+        "analysis_id": {
+          "name": "analysis_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "video_id": {
+          "name": "video_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "video_day": {
+          "name": "video_day",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creator_sentiment": {
+          "name": "creator_sentiment",
+          "type": "creator_sentiment",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rating_overall": {
+          "name": "rating_overall",
+          "type": "numeric(3, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rating_richness": {
+          "name": "rating_richness",
+          "type": "numeric(3, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rating_complexity": {
+          "name": "rating_complexity",
+          "type": "numeric(3, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rating_overall_confidence": {
+          "name": "rating_overall_confidence",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rating_richness_confidence": {
+          "name": "rating_richness_confidence",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rating_complexity_confidence": {
+          "name": "rating_complexity_confidence",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "flavor_profile_notes": {
+          "name": "flavor_profile_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "texture_thickness": {
+          "name": "texture_thickness",
+          "type": "numeric(3, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "appearance_color": {
+          "name": "appearance_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "appearance_clarity": {
+          "name": "appearance_clarity",
+          "type": "numeric(3, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "key_quote": {
+          "name": "key_quote",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "general_notes": {
+          "name": "general_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rating_inferred": {
+          "name": "rating_inferred",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "richness_inferred": {
+          "name": "richness_inferred",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "complexity_inferred": {
+          "name": "complexity_inferred",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "raw_gemini_response": {
+          "name": "raw_gemini_response",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "analysis_model": {
+          "name": "analysis_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "stew_analysis_video_id_unique": {
+          "name": "stew_analysis_video_id_unique",
+          "columns": [
+            {
+              "expression": "video_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "stew_analysis_video_day_idx": {
+          "name": "stew_analysis_video_day_idx",
+          "columns": [
+            {
+              "expression": "video_day",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "stew_analysis_video_id_videos_id_fk": {
+          "name": "stew_analysis_video_id_videos_id_fk",
+          "tableFrom": "stew_analysis",
+          "tableTo": "videos",
+          "columnsFrom": [
+            "video_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "rating_overall_range": {
+          "name": "rating_overall_range",
+          "value": "\"stew_analysis\".\"rating_overall\" IS NULL OR (\"stew_analysis\".\"rating_overall\" >= 0 AND \"stew_analysis\".\"rating_overall\" <= 20)"
+        },
+        "rating_richness_range": {
+          "name": "rating_richness_range",
+          "value": "\"stew_analysis\".\"rating_richness\" IS NULL OR (\"stew_analysis\".\"rating_richness\" >= 0 AND \"stew_analysis\".\"rating_richness\" <= 20)"
+        },
+        "rating_complexity_range": {
+          "name": "rating_complexity_range",
+          "value": "\"stew_analysis\".\"rating_complexity\" IS NULL OR (\"stew_analysis\".\"rating_complexity\" >= 0 AND \"stew_analysis\".\"rating_complexity\" <= 20)"
+        },
+        "texture_thickness_range": {
+          "name": "texture_thickness_range",
+          "value": "\"stew_analysis\".\"texture_thickness\" IS NULL OR (\"stew_analysis\".\"texture_thickness\" >= 0 AND \"stew_analysis\".\"texture_thickness\" <= 20)"
+        },
+        "appearance_clarity_range": {
+          "name": "appearance_clarity_range",
+          "value": "\"stew_analysis\".\"appearance_clarity\" IS NULL OR (\"stew_analysis\".\"appearance_clarity\" >= 0 AND \"stew_analysis\".\"appearance_clarity\" <= 20)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.video_summary_embeddings": {
+      "name": "video_summary_embeddings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "video_id": {
+          "name": "video_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "summary_text": {
+          "name": "summary_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dimensions": {
+          "name": "dimensions",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "embedding": {
+          "name": "embedding",
+          "type": "vector(768)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "video_summary_embeddings_video_id_unique": {
+          "name": "video_summary_embeddings_video_id_unique",
+          "columns": [
+            {
+              "expression": "video_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "video_summary_embeddings_video_id_videos_id_fk": {
+          "name": "video_summary_embeddings_video_id_videos_id_fk",
+          "tableFrom": "video_summary_embeddings",
+          "tableTo": "videos",
+          "columnsFrom": [
+            "video_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.video_transcripts": {
+      "name": "video_transcripts",
+      "schema": "",
+      "columns": {
+        "transcript_id": {
+          "name": "transcript_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "video_id": {
+          "name": "video_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transcript_text": {
+          "name": "transcript_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "language": {
+          "name": "language",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'en'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "video_transcripts_video_id_unique": {
+          "name": "video_transcripts_video_id_unique",
+          "columns": [
+            {
+              "expression": "video_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "video_transcripts_video_id_videos_id_fk": {
+          "name": "video_transcripts_video_id_videos_id_fk",
+          "tableFrom": "video_transcripts",
+          "tableTo": "videos",
+          "columnsFrom": [
+            "video_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.videos": {
+      "name": "videos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tiktok_url": {
+          "name": "tiktok_url",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "video_id": {
+          "name": "video_id",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "author": {
+          "name": "author",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duration": {
+          "name": "duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "view_count": {
+          "name": "view_count",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "like_count": {
+          "name": "like_count",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_count": {
+          "name": "comment_count",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "share_count": {
+          "name": "share_count",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "file_size": {
+          "name": "file_size",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "b2_key": {
+          "name": "b2_key",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_about_stew": {
+          "name": "is_about_stew",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "processing_status": {
+          "name": "processing_status",
+          "type": "processing_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unprocessed'"
+        },
+        "download_date": {
+          "name": "download_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "videos_tiktok_url_unique": {
+          "name": "videos_tiktok_url_unique",
+          "columns": [
+            {
+              "expression": "tiktok_url",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "videos_video_id_unique": {
+          "name": "videos_video_id_unique",
+          "columns": [
+            {
+              "expression": "video_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "videos_processing_status_idx": {
+          "name": "videos_processing_status_idx",
+          "columns": [
+            {
+              "expression": "processing_status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.creator_sentiment": {
+      "name": "creator_sentiment",
+      "schema": "public",
+      "values": [
+        "Super Positive",
+        "Positive",
+        "Neutral",
+        "Negative",
+        "Super Negative"
+      ]
+    },
+    "public.ingredient_category": {
+      "name": "ingredient_category",
+      "schema": "public",
+      "values": [
+        "Aromatic Veg",
+        "Root Veg",
+        "Leafy Green",
+        "Cruciferous Veg",
+        "Squash",
+        "Nightshade",
+        "Mushroom",
+        "Fruit",
+        "Protein-Poultry",
+        "Protein-RedMeat",
+        "Protein-Pork",
+        "Protein-Seafood",
+        "Protein-Game",
+        "Protein-Processed",
+        "Protein-Plant",
+        "Egg",
+        "Dairy",
+        "Starch-Potato",
+        "Starch-Grain",
+        "Starch-Legume",
+        "Nut/Seed",
+        "Herb",
+        "Spice",
+        "Seasoning",
+        "Condiment",
+        "Sauce/Paste",
+        "Sweetener",
+        "Fat",
+        "Acid",
+        "Pickle/Fermented",
+        "Bread/Baked",
+        "Confection",
+        "Snack/Processed",
+        "Liquid-Water",
+        "Liquid-Broth",
+        "Liquid-Dairy",
+        "Liquid-Wine",
+        "Liquid-Beer",
+        "Liquid-Spirit",
+        "Liquid-Juice",
+        "Other"
+      ]
+    },
+    "public.prep_style": {
+      "name": "prep_style",
+      "schema": "public",
+      "values": [
+        "Raw",
+        "Roasted",
+        "Sautéed",
+        "Boiled",
+        "Leftover",
+        "Scrap",
+        "Jarred",
+        "Fried",
+        "Grilled",
+        "Smoked",
+        "Steamed",
+        "Braised",
+        "Baked",
+        "Pickled",
+        "Dried",
+        "Canned",
+        "Frozen",
+        "Marinated",
+        "Fermented",
+        "Powdered",
+        "Caramelized",
+        "Cured",
+        "Mashed",
+        "Confit",
+        "Blanched",
+        "Poached",
+        "Infused"
+      ]
+    },
+    "public.processing_status": {
+      "name": "processing_status",
+      "schema": "public",
+      "values": [
+        "unprocessed",
+        "analyzed",
+        "failed"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

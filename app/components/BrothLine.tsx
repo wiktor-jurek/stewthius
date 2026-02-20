@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { StewRating, VideoAnalysis } from '@/lib/actions';
 import { getSentimentColor, seededRandom } from '@/lib/utils';
 import { trackChartInteraction } from '@/lib/analytics';
@@ -38,6 +39,7 @@ function catmullRom(points: number[][], tension = 0.5): string {
 }
 
 const BrothLine = ({ ratings, videos }: BrothLineProps) => {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -83,7 +85,7 @@ const BrothLine = ({ ratings, videos }: BrothLineProps) => {
       const thickness = 3 + norm * 16;
       const sent = r.creatorSentiment.toLowerCase();
       const noiseMag =
-        sent === 'negative' ? 14 : sent === 'experimental' ? 7 : sent === 'neutral' ? 2 : 0;
+        sent === 'super negative' ? 18 : sent === 'negative' ? 14 : sent === 'neutral' ? 2 : sent === 'positive' ? 0 : sent === 'super positive' ? 0 : 2;
 
       const nU = (seededRandom(r.day * 7 + 1) - 0.5) * noiseMag;
       const nL = (seededRandom(r.day * 7 + 2) - 0.5) * noiseMag;
@@ -151,11 +153,10 @@ const BrothLine = ({ ratings, videos }: BrothLineProps) => {
               trackChartInteraction('broth_line', 'filter_change', type);
               setSelectedRating(type);
             }}
-            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors font-medium capitalize ${
-              selectedRating === type
+            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors font-medium capitalize ${selectedRating === type
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-            }`}
+              }`}
           >
             {type}
           </button>
@@ -242,7 +243,8 @@ const BrothLine = ({ ratings, videos }: BrothLineProps) => {
                 height={plotH}
                 fill="transparent"
                 onMouseEnter={() => setHoveredIndex(i)}
-                style={{ cursor: 'crosshair' }}
+                onClick={() => router.push(`/video/${d.day}`)}
+                style={{ cursor: 'pointer' }}
               />
             );
           })}
@@ -320,10 +322,11 @@ const BrothLine = ({ ratings, videos }: BrothLineProps) => {
 
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-3 text-xs text-muted-foreground">
         {[
+          { label: 'Super Positive', color: '#2D6A4F' },
           { label: 'Positive', color: '#4A7C59' },
-          { label: 'Experimental', color: '#7B5EA7' },
           { label: 'Neutral', color: '#C9943E' },
           { label: 'Negative', color: '#BC4749' },
+          { label: 'Super Negative', color: '#7B2D35' },
         ].map((item) => (
           <div key={item.label} className="flex items-center gap-1.5">
             <div

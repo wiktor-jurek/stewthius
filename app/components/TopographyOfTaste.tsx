@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { VideoAnalysis } from '@/lib/actions';
+import { useRouter } from 'next/navigation';
+import { VideoAnalysis, VideoEmbeddingPosition } from '@/lib/actions';
 import { getSentimentColor, seededRandom } from '@/lib/utils';
 
 interface TopographyOfTasteProps {
   videos: VideoAnalysis[];
+  positions: VideoEmbeddingPosition[];
 }
 
 type Zone = 'stewphoria' | 'despair' | 'experimental' | 'bland';
@@ -24,51 +26,51 @@ interface BubbleNode {
   color: string;
 }
 
-const ZONE_META: Record<Zone, { label: string; description: string; color: string; glowColor: string }> = {
+const ZONE_META: Record<Zone, { label: string; description: string }> = {
   stewphoria: {
     label: 'Stewphoria',
     description: 'Golden days of flavor perfection',
-    color: 'rgba(217, 119, 47, 0.12)',
-    glowColor: 'rgba(217, 119, 47, 0.06)',
   },
   despair: {
     label: 'Valley of Despair',
     description: 'When the pot went dark',
-    color: 'rgba(74, 80, 59, 0.14)',
-    glowColor: 'rgba(74, 80, 59, 0.07)',
   },
   experimental: {
     label: 'Wild Card',
     description: 'Bold experiments and mad science',
-    color: 'rgba(123, 94, 167, 0.12)',
-    glowColor: 'rgba(123, 94, 167, 0.06)',
   },
   bland: {
     label: 'The Bland Lands',
     description: 'Steady simmering, nothing fancy',
-    color: 'rgba(201, 148, 62, 0.10)',
-    glowColor: 'rgba(201, 148, 62, 0.05)',
   },
 };
 
+const SENTIMENT_LEGEND: { key: string; label: string; color: string }[] = [
+  { key: 'super positive', label: 'Super Positive', color: '#2D6A4F' },
+  { key: 'positive', label: 'Positive', color: '#4A7C59' },
+  { key: 'neutral', label: 'Neutral', color: '#C9943E' },
+  { key: 'negative', label: 'Negative', color: '#BC4749' },
+  { key: 'super negative', label: 'Super Negative', color: '#7B2D35' },
+];
+
 function classifyZone(rating: number, sentiment: string): Zone {
   const s = sentiment.toLowerCase();
-  if (rating >= 8 && s === 'positive') return 'stewphoria';
-  if (rating <= 5 && s === 'negative') return 'despair';
-  if (s === 'experimental') return 'experimental';
+  if (rating >= 8 && (s === 'positive' || s === 'super positive')) return 'stewphoria';
+  if (rating <= 5 && (s === 'negative' || s === 'super negative')) return 'despair';
+  if (s === 'super positive' || s === 'super negative') return 'experimental';
   return 'bland';
 }
 
-function resolveCollisions(nodes: BubbleNode[], iterations = 80) {
+function resolveCollisions(nodes: BubbleNode[], iterations = 30) {
   for (let iter = 0; iter < iterations; iter++) {
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const dx = nodes[j].x - nodes[i].x;
         const dy = nodes[j].y - nodes[i].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const minDist = nodes[i].r + nodes[j].r + 1.5;
+        const minDist = nodes[i].r + nodes[j].r + 1;
         if (dist < minDist && dist > 0) {
-          const overlap = (minDist - dist) / dist * 0.4;
+          const overlap = (minDist - dist) / dist * 0.15;
           nodes[i].x -= dx * overlap;
           nodes[i].y -= dy * overlap;
           nodes[j].x += dx * overlap;
@@ -79,31 +81,44 @@ function resolveCollisions(nodes: BubbleNode[], iterations = 80) {
   }
 }
 
-const TopographyOfTaste = ({ videos }: TopographyOfTasteProps) => {
+const PADDING = 60;
+
+const TopographyOfTaste = ({ videos, positions }: TopographyOfTasteProps) => {
+  const router = useRouter();
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const W = 960;
   const H = 520;
 
-  const zoneAnchors: Record<Zone, { cx: number; cy: number; rx: number; ry: number }> = {
-    stewphoria: { cx: W * 0.72, cy: H * 0.26, rx: W * 0.22, ry: H * 0.22 },
-    despair: { cx: W * 0.22, cy: H * 0.72, rx: W * 0.20, ry: H * 0.20 },
-    experimental: { cx: W * 0.24, cy: H * 0.28, rx: W * 0.17, ry: H * 0.18 },
-    bland: { cx: W * 0.52, cy: H * 0.52, rx: W * 0.24, ry: H * 0.22 },
-  };
+  const positionMap = useMemo(() => {
+    const map = new Map<string, { x: number; y: number }>();
+    for (const p of positions) {
+      map.set(p.videoId, { x: p.x, y: p.y });
+    }
+    return map;
+  }, [positions]);
+
+  const hasEmbeddings = positions.length > 0;
 
   const nodes = useMemo(() => {
     const result: BubbleNode[] = videos.map((v) => {
       const zone = classifyZone(v.ratingOverall, v.sentiment);
-      const anchor = zoneAnchors[zone];
       const engagement = Math.log10(Math.max(v.viewCount || 1, 1));
       const r = 4 + Math.min(engagement, 7) * 1.2;
 
-      const angle = seededRandom(v.day * 31) * Math.PI * 2;
-      const dist = seededRandom(v.day * 17) * 0.85;
-      const x = anchor.cx + Math.cos(angle) * anchor.rx * dist;
-      const y = anchor.cy + Math.sin(angle) * anchor.ry * dist;
+      let x: number, y: number;
+      const pos = positionMap.get(v.videoId);
+
+      if (pos) {
+        x = PADDING + pos.x * (W - 2 * PADDING);
+        y = PADDING + pos.y * (H - 2 * PADDING);
+      } else {
+        const angle = seededRandom(v.day * 31) * Math.PI * 2;
+        const dist = seededRandom(v.day * 17) * 0.3;
+        x = W / 2 + Math.cos(angle) * W * dist;
+        y = H / 2 + Math.sin(angle) * H * dist;
+      }
 
       return {
         x, y, r,
@@ -126,8 +141,7 @@ const TopographyOfTaste = ({ videos }: TopographyOfTasteProps) => {
     }
 
     return result;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videos]);
+  }, [videos, positionMap]);
 
   const hovered = hoveredDay !== null ? nodes.find((n) => n.day === hoveredDay) : null;
 
@@ -144,8 +158,9 @@ const TopographyOfTaste = ({ videos }: TopographyOfTasteProps) => {
           🗺️ The Topography of Taste
         </h2>
         <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-          Every bubble is a day in the stew&apos;s life. Hover to explore the peaks of
-          Stewphoria and the murky depths of the Valley of Despair.
+          {hasEmbeddings
+            ? "Every bubble is a day in the stew\u2019s life. Days with similar content cluster together. Hover to explore."
+            : "Every bubble is a day in the stew\u2019s life. Hover to explore the peaks of Stewphoria and the murky depths of the Valley of Despair."}
         </p>
       </div>
 
@@ -156,9 +171,6 @@ const TopographyOfTaste = ({ videos }: TopographyOfTasteProps) => {
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
-            <filter id="zone-blur">
-              <feGaussianBlur stdDeviation="40" />
-            </filter>
             <filter id="bubble-glow">
               <feGaussianBlur stdDeviation="3" result="blur" />
               <feMerge>
@@ -173,43 +185,6 @@ const TopographyOfTaste = ({ videos }: TopographyOfTasteProps) => {
           </defs>
 
           <rect x="0" y="0" width={W} height={H} fill="url(#pot-vignette)" />
-
-          {(Object.entries(zoneAnchors) as [Zone, typeof zoneAnchors.stewphoria][]).map(
-            ([zone, anchor]) => (
-              <g key={zone}>
-                <ellipse
-                  cx={anchor.cx}
-                  cy={anchor.cy}
-                  rx={anchor.rx * 1.1}
-                  ry={anchor.ry * 1.1}
-                  fill={ZONE_META[zone].color}
-                  filter="url(#zone-blur)"
-                />
-                <text
-                  x={anchor.cx}
-                  y={anchor.cy - anchor.ry * 0.85}
-                  textAnchor="middle"
-                  fontSize="13"
-                  fontWeight="700"
-                  fill="var(--foreground)"
-                  opacity="0.55"
-                  fontFamily="var(--font-serif)"
-                >
-                  {ZONE_META[zone].label}
-                </text>
-                <text
-                  x={anchor.cx}
-                  y={anchor.cy - anchor.ry * 0.85 + 14}
-                  textAnchor="middle"
-                  fontSize="9"
-                  fill="var(--muted-foreground)"
-                  opacity="0.45"
-                >
-                  {ZONE_META[zone].description}
-                </text>
-              </g>
-            )
-          )}
 
           {nodes.map((n) => {
             const isHovered = hoveredDay === n.day;
@@ -237,6 +212,7 @@ const TopographyOfTaste = ({ videos }: TopographyOfTasteProps) => {
                   strokeOpacity={isHovered ? 0.8 : 0.3}
                   onMouseEnter={() => setHoveredDay(n.day)}
                   onMouseLeave={() => setHoveredDay(null)}
+                  onClick={() => router.push(`/video/${n.day}`)}
                   style={{ cursor: 'pointer', transition: 'r 0.15s ease' }}
                 />
                 {isHovered && (
@@ -291,30 +267,20 @@ const TopographyOfTaste = ({ videos }: TopographyOfTasteProps) => {
               &ldquo;{hovered.quote}&rdquo;
             </p>
           )}
+          <div className="text-[10px] text-primary font-medium mt-1.5">Click to explore →</div>
         </div>
       )}
 
       <div className="flex flex-wrap justify-center gap-x-5 gap-y-1 mt-3 text-xs text-muted-foreground">
-        {(Object.entries(ZONE_META) as [Zone, (typeof ZONE_META)[Zone]][]).map(
-          ([zone, meta]) => (
-            <div key={zone} className="flex items-center gap-1.5">
-              <div
-                className="w-2.5 h-2.5 rounded-full"
-                style={{
-                  backgroundColor:
-                    zone === 'stewphoria'
-                      ? '#D9772F'
-                      : zone === 'despair'
-                        ? '#4A5039'
-                        : zone === 'experimental'
-                          ? '#7B5EA7'
-                          : '#C9943E',
-                }}
-              />
-              <span>{meta.label}</span>
-            </div>
-          )
-        )}
+        {SENTIMENT_LEGEND.map((item) => (
+          <div key={item.key} className="flex items-center gap-1.5">
+            <div
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: item.color }}
+            />
+            <span>{item.label}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
