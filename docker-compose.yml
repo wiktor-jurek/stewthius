@@ -1,0 +1,44 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web-runner
+      args:
+        DATABASE_URL: ${DATABASE_URL}
+        DATABASE_SSL: ${DATABASE_SSL:-false}
+    environment:
+      - DATABASE_URL
+      - DATABASE_SSL=${DATABASE_SSL:-false}
+      - REVALIDATE_TOKEN=${REVALIDATE_TOKEN:-}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r=>{process.exit(r.ok?0:1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  tasks:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: task-runner
+    environment:
+      - DATABASE_URL
+      - DATABASE_SSL=${DATABASE_SSL:-false}
+      - GEMINI_API_KEY
+      - BACKBLAZE_KEY_ID
+      - BACKBLAZE_APPLICATION_KEY
+      - BACKBLAZE_KEY_NAME
+      - BACKBLAZE_BUCKET_NAME
+      - BACKBLAZE_ENDPOINT
+      - BACKBLAZE_REGION
+      - REVALIDATE_BASE_URL=http://web:3000
+      - REVALIDATE_TOKEN=${REVALIDATE_TOKEN:-}
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
