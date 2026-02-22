@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { FlavorFootprintData } from '@/lib/actions';
 
 interface FlavorFootprintProps {
@@ -45,9 +45,10 @@ function polygonPoints(
 const FlavorFootprint = ({ data, ingredientName }: FlavorFootprintProps) => {
   const [hoveredAxis, setHoveredAxis] = useState<number | null>(null);
 
-  const cx = 160;
-  const cy = 150;
-  const radius = 110;
+  const size = 280;
+  const cx = size / 2;
+  const cy = size / 2;
+  const radius = size / 2 - 36;
 
   const ingredientValues = AXES.map((a) => data.ingredient[a.key]);
   const globalValues = AXES.map((a) => data.global[a.key]);
@@ -59,18 +60,22 @@ const FlavorFootprint = ({ data, ingredientName }: FlavorFootprintProps) => {
 
   return (
     <div>
-      <div className="text-center mb-5">
-        <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-1">
-          🕸️ Flavor Footprint
+      <div className="mb-3">
+        <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-1">
+          Flavor Footprint
         </h2>
-        <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-          How does {ingredientName} shift the stew&apos;s profile? The solid shape is its average
-          effect, overlaid against the global stew average.
+        <p className="text-sm text-foreground/60 max-w-xl">
+          How does {ingredientName} shift the stew&apos;s profile?
         </p>
       </div>
 
-      <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-warm p-6 flex flex-col items-center">
-        <svg width={320} height={320} viewBox="0 0 320 320" className="max-w-full">
+      <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-warm p-4 flex flex-col items-center">
+        <svg
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${size} ${size}`}
+          className="max-w-xs w-full"
+        >
           {/* Rings */}
           {rings.map((pct) => {
             const r = radius * pct;
@@ -188,13 +193,13 @@ const FlavorFootprint = ({ data, ingredientName }: FlavorFootprintProps) => {
         </svg>
 
         {/* Legend */}
-        <div className="flex gap-6 mt-2 text-xs text-muted-foreground">
+        <div className="flex gap-5 mt-1 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-0.5 bg-primary rounded" />
+            <div className="w-4 h-0.5 bg-primary rounded" />
             <span>{ingredientName}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-0.5 border-t-2 border-dashed border-muted-foreground/60 rounded" />
+            <div className="w-4 h-0.5 border-t-2 border-dashed border-muted-foreground/60 rounded" />
             <span>Global Avg</span>
           </div>
         </div>

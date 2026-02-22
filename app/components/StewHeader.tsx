@@ -1,11 +1,13 @@
-import { Stats, Video } from '@/lib/actions';
+import { Stats, StewRating, Video } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
+import RatingCalendar from './RatingCalendar';
 
 interface StewHeaderProps {
   stats: Stats;
   latestVideo: Video | null;
+  ratings: StewRating[];
 }
 
 const SteamSVG = () => (
@@ -47,7 +49,7 @@ const SteamSVG = () => (
   </svg>
 );
 
-const StewHeader = ({ stats, latestVideo }: StewHeaderProps) => {
+const StewHeader = ({ stats, latestVideo, ratings }: StewHeaderProps) => {
   return (
     <div className="relative overflow-hidden bg-gradient-primary text-primary-foreground p-8 rounded-xl shadow-warm-lg mb-8">
       <SteamSVG />
@@ -120,6 +122,8 @@ const StewHeader = ({ stats, latestVideo }: StewHeaderProps) => {
             community-driven flavor evolution. Rustic analytics for a rustic dish.
           </p>
         </div>
+
+        <RatingCalendar ratings={ratings} totalDays={stats.currentDay} />
       </div>
     </div>
   );

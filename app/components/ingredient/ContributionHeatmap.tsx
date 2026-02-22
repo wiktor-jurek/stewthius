@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { IngredientContribution } from '@/lib/actions';
 import { getSentimentColor } from '@/lib/utils';
 
 interface ContributionHeatmapProps {
   contributions: IngredientContribution[];
   ingredientName: string;
+  totalDays: number;
 }
 
-const CELL_SIZE = 14;
-const CELL_GAP = 3;
+const CELL_SIZE = 10;
+const CELL_GAP = 2;
 const TOTAL_CELL = CELL_SIZE + CELL_GAP;
-const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function sentimentOpacity(sentiment: string): number {
   switch (sentiment) {
@@ -26,7 +26,8 @@ function sentimentOpacity(sentiment: string): number {
   }
 }
 
-const ContributionHeatmap = ({ contributions, ingredientName }: ContributionHeatmapProps) => {
+const ContributionHeatmap = ({ contributions, ingredientName, totalDays }: ContributionHeatmapProps) => {
+  const router = useRouter();
   const [hovered, setHovered] = useState<IngredientContribution | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -37,84 +38,61 @@ const ContributionHeatmap = ({ contributions, ingredientName }: ContributionHeat
     return map;
   }, [contributions]);
 
-  const { minDay, maxDay } = useMemo(() => {
-    if (contributions.length === 0) return { minDay: 1, maxDay: 100 };
-    const days = contributions.map((c) => c.day);
-    return { minDay: Math.min(...days), maxDay: Math.max(...days) };
-  }, [contributions]);
-
-  const totalDays = maxDay - minDay + 1;
-  const weeks = Math.ceil(totalDays / 7);
-  const leftPad = 32;
-  const topPad = 20;
+  const maxDay = Math.max(totalDays, ...contributions.map((c) => c.day));
+  const rows = 7;
+  const weeks = Math.ceil(maxDay / rows);
+  const leftPad = 4;
+  const topPad = 16;
   const svgWidth = leftPad + weeks * TOTAL_CELL + 4;
-  const svgHeight = topPad + 7 * TOTAL_CELL + 4;
+  const svgHeight = topPad + rows * TOTAL_CELL + 4;
 
   const cells = useMemo(() => {
     const result: { day: number; week: number; weekday: number; contribution?: IngredientContribution }[] = [];
-    for (let d = minDay; d <= maxDay; d++) {
-      const offset = d - minDay;
-      const week = Math.floor(offset / 7);
-      const weekday = offset % 7;
+    for (let d = 1; d <= maxDay; d++) {
+      const offset = d - 1;
+      const week = Math.floor(offset / rows);
+      const weekday = offset % rows;
       result.push({ day: d, week, weekday, contribution: dayMap.get(d) });
     }
     return result;
-  }, [minDay, maxDay, dayMap]);
+  }, [maxDay, dayMap]);
 
   const weekLabels = useMemo(() => {
     const labels: { week: number; label: string }[] = [];
-    const interval = Math.max(1, Math.floor(weeks / 8));
+    const interval = Math.max(1, Math.floor(weeks / 6));
     for (let w = 0; w < weeks; w += interval) {
-      const day = minDay + w * 7;
-      labels.push({ week: w, label: `Day ${day}` });
+      const day = w * rows + 1;
+      labels.push({ week: w, label: `${day}` });
     }
     return labels;
-  }, [weeks, minDay]);
+  }, [weeks]);
 
   if (contributions.length === 0) return null;
 
   return (
     <div>
-      <div className="text-center mb-5">
-        <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-1">
-          📅 Stew Contributions
+      <div className="mb-3">
+        <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-1">
+          Stew Contributions
         </h2>
-        <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-          Every square is a stew day. Colored squares show when {ingredientName} was in the pot,
-          tinted by Zak&apos;s mood.
+        <p className="text-sm text-foreground/60 max-w-xl">
+          Every square is a stew day. Color marks when {ingredientName} was in the pot.
         </p>
       </div>
 
       <div
         ref={containerRef}
-        className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-warm p-5 overflow-x-auto relative"
+        className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-warm px-4 py-3 overflow-x-auto relative"
       >
         <svg width={svgWidth} height={svgHeight} className="block mx-auto">
-          {/* Day-of-week labels */}
-          {DAY_LABELS.map((label, i) =>
-            label ? (
-              <text
-                key={i}
-                x={leftPad - 6}
-                y={topPad + i * TOTAL_CELL + CELL_SIZE * 0.75}
-                textAnchor="end"
-                fontSize="10"
-                fill="var(--muted-foreground)"
-                fontFamily="var(--font-sans)"
-              >
-                {label}
-              </text>
-            ) : null,
-          )}
-
-          {/* Week labels */}
+          {/* Week/Day labels along top */}
           {weekLabels.map(({ week, label }) => (
             <text
               key={week}
               x={leftPad + week * TOTAL_CELL + CELL_SIZE / 2}
-              y={topPad - 6}
+              y={topPad - 5}
               textAnchor="middle"
-              fontSize="9"
+              fontSize="8"
               fill="var(--muted-foreground)"
               fontFamily="var(--font-sans)"
             >
@@ -134,12 +112,13 @@ const ContributionHeatmap = ({ contributions, ingredientName }: ContributionHeat
                 y={y}
                 width={CELL_SIZE}
                 height={CELL_SIZE}
-                rx={3}
-                fill={contribution ? getSentimentColor(contribution.sentiment) : 'var(--muted)'}
-                fillOpacity={contribution ? sentimentOpacity(contribution.sentiment) : 0.3}
+                rx={2}
+                fill={contribution ? getSentimentColor(contribution.sentiment) : 'var(--foreground)'}
+                fillOpacity={contribution ? sentimentOpacity(contribution.sentiment) : 0.06}
                 stroke={hovered?.day === day ? 'var(--foreground)' : 'transparent'}
-                strokeWidth={1.5}
+                strokeWidth={1}
                 className="transition-colors cursor-pointer"
+                onClick={() => router.push(`/video/${day}`)}
                 onMouseEnter={(e) => {
                   if (contribution) {
                     setHovered(contribution);
@@ -180,18 +159,18 @@ const ContributionHeatmap = ({ contributions, ingredientName }: ContributionHeat
         )}
       </div>
 
-      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-3 text-xs text-muted-foreground">
+      <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-2 text-[10px] text-muted-foreground">
         {['Super Positive', 'Positive', 'Neutral', 'Negative', 'Super Negative'].map((s) => (
-          <div key={s} className="flex items-center gap-1.5">
+          <div key={s} className="flex items-center gap-1">
             <div
-              className="w-2.5 h-2.5 rounded-sm"
+              className="w-2 h-2 rounded-sm"
               style={{ backgroundColor: getSentimentColor(s), opacity: sentimentOpacity(s) }}
             />
             <span>{s}</span>
           </div>
         ))}
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-sm bg-muted opacity-30" />
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-sm bg-foreground/6" />
           <span>No addition</span>
         </div>
       </div>

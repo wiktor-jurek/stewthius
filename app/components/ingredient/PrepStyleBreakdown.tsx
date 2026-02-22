@@ -89,9 +89,9 @@ const PrepStyleBreakdown = ({ data, ingredientName }: PrepStyleBreakdownProps) =
     <div>
       <div className="text-center mb-5">
         <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-1">
-          🍳 Prep Style Breakdown
+          Prep Style Breakdown
         </h2>
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+        <p className="text-sm text-foreground/60 max-w-md mx-auto">
           How does {ingredientName} enter the pot?
         </p>
       </div>
@@ -151,7 +151,7 @@ const PrepStyleBreakdown = ({ data, ingredientName }: PrepStyleBreakdownProps) =
                 </span>
                 <span className="text-sm font-medium text-foreground flex-1">{d.style}</span>
                 <span className="text-xs text-muted-foreground">{d.count}×</span>
-                <div className="w-16 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                <div className="w-20 h-2 bg-muted/50 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{

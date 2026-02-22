@@ -197,6 +197,22 @@
   background: linear-gradient(135deg, #D9772F 0%, #C46527 60%, #B85A22 100%);
 }
 
+@utility bg-sentiment-super-positive {
+  background: linear-gradient(135deg, #059669 0%, #047857 60%, #065f46 100%);
+}
+
+@utility bg-sentiment-positive {
+  background: linear-gradient(135deg, #4A7C59 0%, #3d6b4a 60%, #2f5a3b 100%);
+}
+
+@utility bg-sentiment-negative {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 60%, #991b1b 100%);
+}
+
+@utility bg-sentiment-super-negative {
+  background: linear-gradient(135deg, #7f1d1d 0%, #6b1414 60%, #581111 100%);
+}
+
 @utility bg-gradient-accent {
   background: linear-gradient(135deg, #F5EDE3 0%, #EBE0D0 100%);
 }

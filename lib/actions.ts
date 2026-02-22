@@ -101,8 +101,6 @@ export async function getStewRatings(): Promise<StewRating[]> {
           .from(schema.stewAnalysis)
           .where(
             sql`${schema.stewAnalysis.ratingOverall} IS NOT NULL
-            AND ${schema.stewAnalysis.ratingRichness} IS NOT NULL
-            AND ${schema.stewAnalysis.ratingComplexity} IS NOT NULL
             AND ${schema.stewAnalysis.creatorSentiment} IS NOT NULL`,
           )
           .orderBy(schema.stewAnalysis.videoDay);
@@ -110,8 +108,8 @@ export async function getStewRatings(): Promise<StewRating[]> {
         return rows.map((row) => ({
           day: row.day,
           ratingOverall: Number(row.ratingOverall),
-          ratingRichness: Number(row.ratingRichness),
-          ratingComplexity: Number(row.ratingComplexity),
+          ratingRichness: Number(row.ratingRichness ?? row.ratingOverall),
+          ratingComplexity: Number(row.ratingComplexity ?? row.ratingOverall),
           creatorSentiment: row.creatorSentiment,
           ratingInferred: row.ratingInferred,
           richnessInferred: row.richnessInferred,
@@ -184,18 +182,22 @@ export async function getPopularIngredients(): Promise<Ingredient[]> {
             MIN(sa.video_day) AS "addedDay",
             COUNT(*) AS "timesAdded",
             AVG(CASE
-              WHEN sa_next.rating_overall IS NOT NULL AND sa_prev.rating_overall IS NOT NULL
-              THEN sa_next.rating_overall - sa_prev.rating_overall
-              ELSE 0
+              WHEN next_day.rating_overall IS NOT NULL AND sa.rating_overall IS NOT NULL
+              THEN next_day.rating_overall - sa.rating_overall
             END) AS impact
           FROM ingredient_additions ia
           JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
           JOIN stew_analysis sa ON ia.analysis_id = sa.analysis_id
-          LEFT JOIN stew_analysis sa_prev ON sa_prev.video_day = sa.video_day - 1
-          LEFT JOIN stew_analysis sa_next ON sa_next.video_day = sa.video_day + 1
+          LEFT JOIN LATERAL (
+            SELECT sa2.rating_overall
+            FROM stew_analysis sa2
+            WHERE sa2.video_day > sa.video_day
+              AND sa2.rating_overall IS NOT NULL
+            ORDER BY sa2.video_day
+            LIMIT 1
+          ) next_day ON true
           GROUP BY i.ingredient_id, i.ingredient_name
           ORDER BY COUNT(*) DESC
-          LIMIT 8
         `);
 
         return result.rows.map((row) => ({
@@ -228,27 +230,29 @@ export async function getMVPIngredients(): Promise<Ingredient[]> {
             MIN(sa.video_day) AS "addedDay",
             COUNT(*) AS "timesAdded",
             AVG(CASE
-              WHEN sa_next.rating_overall IS NOT NULL AND sa_prev.rating_overall IS NOT NULL
-              THEN sa_next.rating_overall - sa_prev.rating_overall
-              ELSE 0
+              WHEN next_day.rating_overall IS NOT NULL AND sa.rating_overall IS NOT NULL
+              THEN next_day.rating_overall - sa.rating_overall
             END) AS impact
           FROM ingredient_additions ia
           JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
           JOIN stew_analysis sa ON ia.analysis_id = sa.analysis_id
-          LEFT JOIN stew_analysis sa_prev ON sa_prev.video_day = sa.video_day - 1
-          LEFT JOIN stew_analysis sa_next ON sa_next.video_day = sa.video_day + 1
+          LEFT JOIN LATERAL (
+            SELECT sa2.rating_overall
+            FROM stew_analysis sa2
+            WHERE sa2.video_day > sa.video_day
+              AND sa2.rating_overall IS NOT NULL
+            ORDER BY sa2.video_day
+            LIMIT 1
+          ) next_day ON true
           GROUP BY i.ingredient_id, i.ingredient_name
           HAVING AVG(CASE
-            WHEN sa_next.rating_overall IS NOT NULL AND sa_prev.rating_overall IS NOT NULL
-            THEN sa_next.rating_overall - sa_prev.rating_overall
-            ELSE 0
+            WHEN next_day.rating_overall IS NOT NULL AND sa.rating_overall IS NOT NULL
+            THEN next_day.rating_overall - sa.rating_overall
           END) > 0
           ORDER BY AVG(CASE
-            WHEN sa_next.rating_overall IS NOT NULL AND sa_prev.rating_overall IS NOT NULL
-            THEN sa_next.rating_overall - sa_prev.rating_overall
-            ELSE 0
+            WHEN next_day.rating_overall IS NOT NULL AND sa.rating_overall IS NOT NULL
+            THEN next_day.rating_overall - sa.rating_overall
           END) DESC
-          LIMIT 5
         `);
 
         return result.rows.map((row) => ({
@@ -618,23 +622,37 @@ export async function getIngredientImpact(ingredientId: number): Promise<Ingredi
       };
       try {
         const result = await db.execute(sql`
-          WITH day_deltas AS (
+          WITH addition_days AS (
             SELECT
               sa.video_day AS day,
               sa.rating_overall AS rating,
               sa.key_quote AS key_quote,
-              v.tiktok_url AS tiktok_url,
-              sa.rating_overall - LAG(sa.rating_overall) OVER (ORDER BY sa.video_day) AS delta
+              v.tiktok_url AS tiktok_url
             FROM ingredient_additions ia
             JOIN stew_analysis sa ON ia.analysis_id = sa.analysis_id
             JOIN videos v ON sa.video_id = v.id
             WHERE ia.ingredient_id = ${ingredientId}
               AND sa.rating_overall IS NOT NULL
+              AND sa.video_day IS NOT NULL
+          ),
+          day_deltas AS (
+            SELECT
+              ad.day,
+              ad.key_quote,
+              ad.tiktok_url,
+              next_sa.rating_overall - ad.rating AS delta
+            FROM addition_days ad
+            INNER JOIN LATERAL (
+              SELECT sa2.rating_overall
+              FROM stew_analysis sa2
+              WHERE sa2.video_day > ad.day
+                AND sa2.rating_overall IS NOT NULL
+              ORDER BY sa2.video_day
+              LIMIT 1
+            ) next_sa ON true
           )
-          SELECT
-            day, delta, key_quote, tiktok_url
+          SELECT day, delta, key_quote, tiktok_url
           FROM day_deltas
-          WHERE delta IS NOT NULL
           ORDER BY day
         `);
 

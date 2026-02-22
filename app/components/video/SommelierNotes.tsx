@@ -33,7 +33,7 @@ export default function SommelierNotes({ video }: SommelierNotesProps) {
             <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
               <span>🫗</span> Tasting Notes
             </h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-foreground/75 leading-relaxed">
               {video.flavorProfileNotes}
             </p>
           </div>
@@ -44,7 +44,7 @@ export default function SommelierNotes({ video }: SommelierNotesProps) {
             <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
               <span>📋</span> General Notes
             </h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-foreground/75 leading-relaxed">
               {video.generalNotes}
             </p>
           </div>

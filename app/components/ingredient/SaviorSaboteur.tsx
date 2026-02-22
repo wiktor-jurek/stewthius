@@ -40,9 +40,9 @@ const SaviorSaboteur = ({ data, ingredientName }: SaviorSaboteurProps) => {
         <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-1">
           {isSavior ? '🛡️' : isNeutral ? '➖' : '💣'} Savior or Saboteur?
         </h2>
-        <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-          Does {ingredientName} help or hurt the stew? We compared each addition
-          to the previous day&apos;s rating.
+        <p className="text-sm text-foreground/60 max-w-xl mx-auto">
+          Does {ingredientName} help or hurt the stew? We measured how the rating
+          changed the day after each addition.
         </p>
       </div>
 

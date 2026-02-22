@@ -10,7 +10,7 @@ interface TopographyOfTasteProps {
   positions: VideoEmbeddingPosition[];
 }
 
-type Zone = 'stewphoria' | 'despair' | 'experimental' | 'bland';
+type Zone = 'stewphoria' | 'despair' | 'bland';
 
 interface BubbleNode {
   x: number;
@@ -26,22 +26,21 @@ interface BubbleNode {
   color: string;
 }
 
-const ZONE_META: Record<Zone, { label: string; description: string }> = {
+const ZONE_META: Record<Zone, { label: string; description: string; glow: string }> = {
   stewphoria: {
     label: 'Stewphoria',
     description: 'Golden days of flavor perfection',
+    glow: 'rgba(45, 106, 79, 0.12)',
   },
   despair: {
     label: 'Valley of Despair',
     description: 'When the pot went dark',
-  },
-  experimental: {
-    label: 'Wild Card',
-    description: 'Bold experiments and mad science',
+    glow: 'rgba(188, 71, 73, 0.10)',
   },
   bland: {
     label: 'The Bland Lands',
     description: 'Steady simmering, nothing fancy',
+    glow: 'rgba(120, 110, 100, 0.05)',
   },
 };
 
@@ -57,7 +56,6 @@ function classifyZone(rating: number, sentiment: string): Zone {
   const s = sentiment.toLowerCase();
   if (rating >= 8 && (s === 'positive' || s === 'super positive')) return 'stewphoria';
   if (rating <= 5 && (s === 'negative' || s === 'super negative')) return 'despair';
-  if (s === 'super positive' || s === 'super negative') return 'experimental';
   return 'bland';
 }
 
@@ -143,6 +141,35 @@ const TopographyOfTaste = ({ videos, positions }: TopographyOfTasteProps) => {
     return result;
   }, [videos, positionMap]);
 
+  const zoneCentroids = useMemo(() => {
+    const groups: Record<Zone, { xs: number[]; ys: number[] }> = {
+      stewphoria: { xs: [], ys: [] },
+      despair: { xs: [], ys: [] },
+      bland: { xs: [], ys: [] },
+    };
+
+    for (const n of nodes) {
+      groups[n.zone].xs.push(n.x);
+      groups[n.zone].ys.push(n.y);
+    }
+
+    return (Object.keys(groups) as Zone[])
+      .filter((z) => groups[z].xs.length > 0)
+      .map((zone) => {
+        const { xs, ys } = groups[zone];
+        const cx = xs.reduce((a, b) => a + b, 0) / xs.length;
+        const cy = ys.reduce((a, b) => a + b, 0) / ys.length;
+        const spread = Math.max(
+          60,
+          Math.sqrt(
+            xs.reduce((sum, xi) => sum + (xi - cx) ** 2, 0) / xs.length +
+            ys.reduce((sum, yi) => sum + (yi - cy) ** 2, 0) / ys.length
+          ) * 1.6,
+        );
+        return { zone, x: cx, y: cy, count: xs.length, spread };
+      });
+  }, [nodes]);
+
   const hovered = hoveredDay !== null ? nodes.find((n) => n.day === hoveredDay) : null;
 
   return (
@@ -178,6 +205,9 @@ const TopographyOfTaste = ({ videos, positions }: TopographyOfTasteProps) => {
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+            <filter id="zone-blur">
+              <feGaussianBlur stdDeviation="30" />
+            </filter>
             <radialGradient id="pot-vignette" cx="50%" cy="50%" r="50%">
               <stop offset="60%" stopColor="transparent" />
               <stop offset="100%" stopColor="rgba(45,42,38,0.08)" />
@@ -185,6 +215,38 @@ const TopographyOfTaste = ({ videos, positions }: TopographyOfTasteProps) => {
           </defs>
 
           <rect x="0" y="0" width={W} height={H} fill="url(#pot-vignette)" />
+
+          {zoneCentroids.map(({ zone, x, y, spread }) => (
+            <circle
+              key={`glow-${zone}`}
+              cx={x}
+              cy={y}
+              r={spread}
+              fill={ZONE_META[zone].glow}
+              filter="url(#zone-blur)"
+              pointerEvents="none"
+            />
+          ))}
+
+          {zoneCentroids.map(({ zone, x, y }) => (
+            <text
+              key={`label-${zone}`}
+              x={x}
+              y={y}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontFamily="serif"
+              fontSize={zone === 'bland' ? 30 : 26}
+              fontWeight="600"
+              fontStyle="italic"
+              fill="var(--foreground)"
+              opacity="0.09"
+              pointerEvents="none"
+              style={{ userSelect: 'none' }}
+            >
+              {ZONE_META[zone].label}
+            </text>
+          ))}
 
           {nodes.map((n) => {
             const isHovered = hoveredDay === n.day;

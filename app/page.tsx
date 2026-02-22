@@ -34,7 +34,7 @@ export default async function Page() {
       <Sonner />
       <div className="min-h-screen bg-gradient-background">
         <div className="container mx-auto px-4 py-8 space-y-16">
-          <StewHeader stats={stats} latestVideo={latestVideo} />
+          <StewHeader stats={stats} latestVideo={latestVideo} ratings={ratings} />
 
           <section>
             <BrothLine ratings={ratings} videos={videosAnalysis} />

@@ -16,9 +16,9 @@ const PairedWith = ({ pairings, ingredientName }: PairedWithProps) => {
     <div>
       <div className="text-center mb-5">
         <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-1">
-          🤝 Usually Paired With
+          Usually Paired With
         </h2>
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+        <p className="text-sm text-foreground/60 max-w-md mx-auto">
           When {ingredientName} goes in, these follow.
         </p>
       </div>
@@ -46,10 +46,10 @@ const PairedWith = ({ pairings, ingredientName }: PairedWithProps) => {
                   <div className="text-sm font-serif font-bold text-foreground">{p.percentage}%</div>
                   <div className="text-[10px] text-muted-foreground">{p.sharedDays} days</div>
                 </div>
-                <div className="w-20 h-1.5 bg-muted/50 rounded-full overflow-hidden shrink-0">
+                <div className="w-20 h-2 bg-muted/50 rounded-full overflow-hidden shrink-0">
                   <div
                     className="h-full rounded-full bg-primary/60 transition-all"
-                    style={{ width: `${p.percentage}%` }}
+                    style={{ width: `${Math.max(p.percentage, 4)}%` }}
                   />
                 </div>
               </Link>
