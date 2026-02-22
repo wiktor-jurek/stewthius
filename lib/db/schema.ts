@@ -186,6 +186,7 @@ export const ingredients = pgTable("ingredients", {
   ingredientId: serial("ingredient_id").primaryKey(),
   ingredientName: text("ingredient_name").notNull().unique(),
   ingredientCategory: ingredientCategoryEnum("ingredient_category").notNull(),
+  defaultPotency: integer("default_potency").notNull().default(3),
 });
 
 export const ingredientAdditions = pgTable(
@@ -200,10 +201,12 @@ export const ingredientAdditions = pgTable(
       .references(() => ingredients.ingredientId, { onDelete: "cascade" }),
     prepStyle: prepStyleEnum("prep_style").notNull(),
     comment: text("comment"),
+    potency: integer("potency"),
   },
   (table) => [
     index("ingredient_additions_analysis_idx").on(table.analysisId),
     index("ingredient_additions_ingredient_idx").on(table.ingredientId),
+    check("potency_range", sql`${table.potency} IS NULL OR (${table.potency} >= 0 AND ${table.potency} <= 5)`),
   ],
 );
 

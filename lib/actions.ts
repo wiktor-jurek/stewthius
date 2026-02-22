@@ -177,17 +177,29 @@ export async function getPopularIngredients(): Promise<Ingredient[]> {
     async () => {
       try {
         const result = await db.execute(sql`
+          WITH potency_weights AS (
+            SELECT
+              ia.addition_id,
+              ia.analysis_id,
+              ia.ingredient_id,
+              COALESCE(ia.potency, i.default_potency) AS eff_potency,
+              SUM(COALESCE(ia.potency, i.default_potency)) OVER (PARTITION BY ia.analysis_id) AS total_potency
+            FROM ingredient_additions ia
+            JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
+          )
           SELECT
             i.ingredient_name AS name,
             MIN(sa.video_day) AS "addedDay",
             COUNT(*) AS "timesAdded",
             AVG(CASE
               WHEN next_day.rating_overall IS NOT NULL AND sa.rating_overall IS NOT NULL
-              THEN next_day.rating_overall - sa.rating_overall
+                AND pw.total_potency > 0
+              THEN (next_day.rating_overall - sa.rating_overall)
+                * (pw.eff_potency::numeric / pw.total_potency)
             END) AS impact
-          FROM ingredient_additions ia
-          JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
-          JOIN stew_analysis sa ON ia.analysis_id = sa.analysis_id
+          FROM potency_weights pw
+          JOIN ingredients i ON pw.ingredient_id = i.ingredient_id
+          JOIN stew_analysis sa ON pw.analysis_id = sa.analysis_id
           LEFT JOIN LATERAL (
             SELECT sa2.rating_overall
             FROM stew_analysis sa2
@@ -225,17 +237,29 @@ export async function getMVPIngredients(): Promise<Ingredient[]> {
     async () => {
       try {
         const result = await db.execute(sql`
+          WITH potency_weights AS (
+            SELECT
+              ia.addition_id,
+              ia.analysis_id,
+              ia.ingredient_id,
+              COALESCE(ia.potency, i.default_potency) AS eff_potency,
+              SUM(COALESCE(ia.potency, i.default_potency)) OVER (PARTITION BY ia.analysis_id) AS total_potency
+            FROM ingredient_additions ia
+            JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
+          )
           SELECT
             i.ingredient_name AS name,
             MIN(sa.video_day) AS "addedDay",
             COUNT(*) AS "timesAdded",
             AVG(CASE
               WHEN next_day.rating_overall IS NOT NULL AND sa.rating_overall IS NOT NULL
-              THEN next_day.rating_overall - sa.rating_overall
+                AND pw.total_potency > 0
+              THEN (next_day.rating_overall - sa.rating_overall)
+                * (pw.eff_potency::numeric / pw.total_potency)
             END) AS impact
-          FROM ingredient_additions ia
-          JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
-          JOIN stew_analysis sa ON ia.analysis_id = sa.analysis_id
+          FROM potency_weights pw
+          JOIN ingredients i ON pw.ingredient_id = i.ingredient_id
+          JOIN stew_analysis sa ON pw.analysis_id = sa.analysis_id
           LEFT JOIN LATERAL (
             SELECT sa2.rating_overall
             FROM stew_analysis sa2
@@ -247,11 +271,15 @@ export async function getMVPIngredients(): Promise<Ingredient[]> {
           GROUP BY i.ingredient_id, i.ingredient_name
           HAVING AVG(CASE
             WHEN next_day.rating_overall IS NOT NULL AND sa.rating_overall IS NOT NULL
-            THEN next_day.rating_overall - sa.rating_overall
+              AND pw.total_potency > 0
+            THEN (next_day.rating_overall - sa.rating_overall)
+              * (pw.eff_potency::numeric / pw.total_potency)
           END) > 0
           ORDER BY AVG(CASE
             WHEN next_day.rating_overall IS NOT NULL AND sa.rating_overall IS NOT NULL
-            THEN next_day.rating_overall - sa.rating_overall
+              AND pw.total_potency > 0
+            THEN (next_day.rating_overall - sa.rating_overall)
+              * (pw.eff_potency::numeric / pw.total_potency)
           END) DESC
         `);
 
@@ -627,20 +655,30 @@ export async function getIngredientImpact(ingredientId: number): Promise<Ingredi
               sa.video_day AS day,
               sa.rating_overall AS rating,
               sa.key_quote AS key_quote,
-              v.tiktok_url AS tiktok_url
+              v.tiktok_url AS tiktok_url,
+              COALESCE(ia.potency, i.default_potency) AS eff_potency,
+              SUM(COALESCE(ia2.potency, i2.default_potency))
+                OVER (PARTITION BY ia.analysis_id) AS total_potency
             FROM ingredient_additions ia
+            JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
             JOIN stew_analysis sa ON ia.analysis_id = sa.analysis_id
             JOIN videos v ON sa.video_id = v.id
+            JOIN ingredient_additions ia2 ON ia2.analysis_id = ia.analysis_id
+            JOIN ingredients i2 ON ia2.ingredient_id = i2.ingredient_id
             WHERE ia.ingredient_id = ${ingredientId}
               AND sa.rating_overall IS NOT NULL
               AND sa.video_day IS NOT NULL
           ),
           day_deltas AS (
-            SELECT
+            SELECT DISTINCT ON (ad.day)
               ad.day,
               ad.key_quote,
               ad.tiktok_url,
-              next_sa.rating_overall - ad.rating AS delta
+              CASE WHEN ad.total_potency > 0
+                THEN (next_sa.rating_overall - ad.rating)
+                  * (ad.eff_potency::numeric / ad.total_potency)
+                ELSE 0
+              END AS delta
             FROM addition_days ad
             INNER JOIN LATERAL (
               SELECT sa2.rating_overall
@@ -854,6 +892,7 @@ export interface DayIngredient {
   category: string;
   prepStyle: string;
   comment?: string;
+  potency: number;
 }
 
 export interface PercentileComparison {
@@ -1003,7 +1042,8 @@ export async function getDayIngredients(day: number): Promise<DayIngredient[]> {
             i.ingredient_name AS name,
             i.ingredient_category AS category,
             ia.prep_style AS "prepStyle",
-            ia.comment
+            ia.comment,
+            COALESCE(ia.potency, i.default_potency) AS potency
           FROM ingredient_additions ia
           JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
           JOIN stew_analysis sa ON ia.analysis_id = sa.analysis_id
@@ -1016,6 +1056,7 @@ export async function getDayIngredients(day: number): Promise<DayIngredient[]> {
           category: String(r.category),
           prepStyle: String(r.prepStyle),
           comment: r.comment ? String(r.comment) : undefined,
+          potency: Number(r.potency),
         }));
       } catch (error) {
         console.error('Error fetching day ingredients:', error);
@@ -1130,14 +1171,28 @@ export async function getIngredientImpactRankings(): Promise<IngredientImpactRan
     async () => {
       try {
         const result = await db.execute(sql`
-          WITH ingredient_day_deltas AS (
+          WITH potency_weights AS (
+            SELECT
+              ia.addition_id,
+              ia.analysis_id,
+              ia.ingredient_id,
+              COALESCE(ia.potency, i.default_potency) AS eff_potency,
+              SUM(COALESCE(ia.potency, i.default_potency)) OVER (PARTITION BY ia.analysis_id) AS total_potency
+            FROM ingredient_additions ia
+            JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
+          ),
+          ingredient_day_deltas AS (
             SELECT DISTINCT
               i.ingredient_name AS name,
               sa.video_day,
-              sa_next.rating_overall - sa.rating_overall AS delta
-            FROM ingredient_additions ia
-            JOIN ingredients i ON ia.ingredient_id = i.ingredient_id
-            JOIN stew_analysis sa ON ia.analysis_id = sa.analysis_id
+              CASE WHEN pw.total_potency > 0
+                THEN (sa_next.rating_overall - sa.rating_overall)
+                  * (pw.eff_potency::numeric / pw.total_potency)
+                ELSE 0
+              END AS delta
+            FROM potency_weights pw
+            JOIN ingredients i ON pw.ingredient_id = i.ingredient_id
+            JOIN stew_analysis sa ON pw.analysis_id = sa.analysis_id
             JOIN stew_analysis sa_next ON sa_next.video_day = sa.video_day + 1
             WHERE sa.rating_overall IS NOT NULL
               AND sa_next.rating_overall IS NOT NULL

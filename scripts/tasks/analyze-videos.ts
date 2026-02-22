@@ -237,7 +237,7 @@ const ANALYSIS_RESPONSE_SCHEMA = {
       type: "ARRAY",
       items: {
         type: "OBJECT",
-        required: ["ingredient_name", "ingredient_category", "prep_style"],
+        required: ["ingredient_name", "ingredient_category", "prep_style", "potency"],
         properties: {
           ingredient_name: { type: "STRING" },
           ingredient_category: {
@@ -245,6 +245,11 @@ const ANALYSIS_RESPONSE_SCHEMA = {
             enum: [...INGREDIENT_CATEGORY_ENUM],
           },
           prep_style: { type: "STRING", enum: [...PREP_STYLE_ENUM] },
+          potency: {
+            type: "NUMBER",
+            description:
+              "How much this ingredient is expected to impact the stew's quality/flavor on a 0-5 scale. 0 = no impact (plain water, ice). 1 = minimal (small garnish). 2 = low (mild herb, small scrap). 3 = moderate/standard addition. 4 = high (strong spice, large protein, acidic ingredient). 5 = dominant (whole chicken, dramatic new element that defines the day's change).",
+          },
           comment: {
             type: "STRING",
             nullable: true,
@@ -299,6 +304,7 @@ type AnalysisOutput = {
     ingredient_name: string;
     ingredient_category: string;
     prep_style: string;
+    potency: number;
     comment: string | null;
   }>;
   process_and_context: {
@@ -569,6 +575,7 @@ First, determine if this video is about the perpetual stew project (is_about_ste
 If the video is NOT about the perpetual stew, set is_about_stew=false and use defaults for the rest.
 If it IS about the stew, extract structured data:
 - Extract ingredient_additions[].ingredient_name as a singular base ingredient (for example: "Carrot", not "Diced organic carrots").
+- For each ingredient, assign a potency score (0-5) estimating how much it will impact the stew's flavor/quality relative to other ingredients added that day. Consider the quantity added, how flavor-forward the ingredient is, and whether it represents a structural change to the stew. Use 3 as the baseline for a standard addition.
 - For each ingredient, include a comment if the creator says something noteworthy about why they're adding it or what effect they expect (e.g. "To add saltiness and spice"). Use their own words when possible. Leave null if nothing notable is said.
 - All rating_* values are on a 0-10 scale because the creator usually rates the stew out of 10.
 - For each main rating, include a confidence score (1-100) and brief evidence-based reasoning.
@@ -1005,11 +1012,16 @@ async function saveFullAnalysis(
         addition.ingredient_category,
       );
       if (ingredientId) {
+        const rawPotency = toNullableNumber(addition.potency);
+        const potency = rawPotency != null
+          ? Math.round(Math.min(5, Math.max(0, rawPotency)))
+          : null;
         resolvedAdditions.push({
           analysisId,
           ingredientId,
           prepStyle: validatePrepStyle(addition.prep_style || "Raw"),
           comment: addition.comment?.trim() || null,
+          potency,
         });
       }
     }
