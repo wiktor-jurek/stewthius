@@ -1,9 +1,9 @@
 import { Pool, type PoolConfig } from "pg";
 
-const connectionString = process.env.NEW_DATABASE_URL || process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error("Missing required env var: NEW_DATABASE_URL (or fallback DATABASE_URL)");
+  throw new Error("Missing required env var: DATABASE_URL");
 }
 
 const sslConfig: PoolConfig["ssl"] =

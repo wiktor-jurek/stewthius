@@ -15,7 +15,8 @@
     "task:pipeline": "tsx scripts/tasks/pipeline.ts",
     "task:revalidate-cache": "tsx scripts/tasks/revalidate-cache.ts",
     "task:backfill-transcripts": "tsx scripts/tasks/backfill-transcripts.ts",
-    "task:migrate-data": "tsx scripts/tasks/migrate-data.ts"
+    "task:migrate-data": "tsx scripts/tasks/migrate-data.ts",
+    "task:create-admin": "node --env-file=.env node_modules/.bin/tsx scripts/tasks/create-admin.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.990.0",
@@ -23,6 +24,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-table": "^8.21.3",
     "@types/pg": "^8.16.0",
+    "better-auth": "^1.4.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",

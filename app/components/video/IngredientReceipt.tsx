@@ -40,7 +40,9 @@ const prepStyleIcons: Record<string, string> = {
   Infused: '🫖',
 };
 
-function IngredientList({ ingredients, muted }: { ingredients: DayIngredient[]; muted?: boolean }) {
+function IngredientList({ ingredients, muted, showContribution }: { ingredients: DayIngredient[]; muted?: boolean; showContribution?: boolean }) {
+  const totalPotency = ingredients.reduce((sum, ing) => sum + ing.potency, 0);
+
   const grouped = ingredients.reduce<Record<string, DayIngredient[]>>((acc, ing) => {
     (acc[ing.category] ??= []).push(ing);
     return acc;
@@ -56,6 +58,9 @@ function IngredientList({ ingredients, muted }: { ingredients: DayIngredient[]; 
           <div className="space-y-2">
             {items.map((item, i) => {
               const slug = item.name.toLowerCase().replace(/\s+/g, '-');
+              const contribution = totalPotency > 0
+                ? Math.round((item.potency / totalPotency) * 100)
+                : 0;
               return (
                 <div
                   key={`${item.name}-${i}`}
@@ -80,6 +85,11 @@ function IngredientList({ ingredients, muted }: { ingredients: DayIngredient[]; 
                         <span>{prepStyleIcons[item.prepStyle] || '🍽️'}</span>
                         {item.prepStyle}
                       </Badge>
+                      {showContribution && totalPotency > 0 && (
+                        <span className="text-xs font-mono text-muted-foreground tabular-nums">
+                          {contribution}% impact
+                        </span>
+                      )}
                     </div>
                     {item.comment && (
                       <p className="text-xs text-muted-foreground mt-1 italic">
@@ -119,7 +129,7 @@ export default function IngredientReceipt({ ingredients, day, previousIngredient
             Nothing was added to the pot today.
           </p>
         ) : (
-          <IngredientList ingredients={ingredients} />
+          <IngredientList ingredients={ingredients} showContribution />
         )}
 
         {previousIngredients && previousIngredients.length > 0 && (
@@ -132,7 +142,7 @@ export default function IngredientReceipt({ ingredients, day, previousIngredient
               </span>
             </summary>
             <div className="mt-4">
-              <IngredientList ingredients={previousIngredients} muted />
+              <IngredientList ingredients={previousIngredients} muted showContribution />
             </div>
           </details>
         )}
