@@ -65,7 +65,7 @@ export default function VitalSigns({ video, globalAverages }: VitalSignsProps) {
         <CardDescription>
           Today&apos;s physical properties overlaid against the all-time stew average
           {confidence != null && confidence < 70 && (
-            <span className="text-broth-amber"> — AI confidence is low, chart faded accordingly</span>
+            <span className="text-broth-amber"> (AI confidence is low, chart faded accordingly)</span>
           )}
         </CardDescription>
       </CardHeader>

@@ -78,7 +78,7 @@ const StewHeader = ({ stats, latestVideo }: StewHeaderProps) => {
                 >
                   <Link href={`/video/${latestVideo.day}`}>
                     <span className="mr-1">🎥</span>
-                    Day {latestVideo.day} — Latest Video
+                    Day {latestVideo.day} - Latest Video
                   </Link>
                 </Button>
                 <blockquote className="text-sm italic opacity-80 text-center max-w-md">
@@ -117,7 +117,7 @@ const StewHeader = ({ stats, latestVideo }: StewHeaderProps) => {
         <div className="mt-6 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
           <p className="text-sm text-center opacity-90">
             Welcome to the communal kitchen. Every metric below tells the story of
-            community-driven flavor evolution — rustic analytics for a rustic dish.
+            community-driven flavor evolution. Rustic analytics for a rustic dish.
           </p>
         </div>
       </div>

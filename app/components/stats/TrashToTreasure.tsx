@@ -123,7 +123,7 @@ const TrashToTreasure = ({ data }: TrashToTreasureProps) => {
             <>
               The verdict: adding scraps and leftovers actually{' '}
               <span className="font-semibold text-herb-green not-italic">improves</span> the stew
-              by {Math.abs(delta).toFixed(1)} points on average. The Leftover Paradox is real —
+              by {Math.abs(delta).toFixed(1)} points on average. The Leftover Paradox is real:
               Zak&apos;s garbage is everyone&apos;s treasure.
             </>
           ) : (

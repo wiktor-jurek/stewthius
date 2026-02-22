@@ -99,7 +99,7 @@ const ViralVsTasty = ({ data }: ViralVsTastyProps) => {
         </h2>
         <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
           Does TikTok&apos;s algorithm prefer bad soup? Each bubble is an ingredient
-          category — positioned by average views and taste rating. Bigger bubbles mean more data.
+          category, positioned by average views and taste rating. Bigger bubbles mean more data.
         </p>
       </div>
 
@@ -282,10 +282,10 @@ const ViralVsTasty = ({ data }: ViralVsTastyProps) => {
       <div className="mt-4 bg-card/60 backdrop-blur-sm border border-border/50 rounded-xl p-4 text-center">
         <p className="text-sm text-muted-foreground italic">
           Where Zak the Chef and Zak the TikToker are at war. Categories in the top-left
-          are <span className="font-semibold not-italic">Hidden Gems</span> — great taste,
+          are <span className="font-semibold not-italic">Hidden Gems</span>: great taste,
           low views. Categories in the bottom-right are the{' '}
-          <span className="font-semibold text-destructive not-italic">Engagement Trap</span>{' '}
-          — TikTok literally rewards him for making worse soup.
+          <span className="font-semibold text-destructive not-italic">Engagement Trap</span>
+          {' '}where TikTok literally rewards him for making worse soup.
         </p>
       </div>
     </div>

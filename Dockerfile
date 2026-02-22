@@ -1,10 +1,10 @@
-# ── Web base: slim Node image, no extra tooling ──
+# Web base: slim Node image, no extra tooling
 FROM node:20-bookworm-slim AS web-base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable
 
-# ── Task base: adds ffmpeg, python3, yt-dlp for video processing ──
+# Task base: adds ffmpeg, python3, yt-dlp for video processing
 FROM web-base AS task-base
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ffmpeg ca-certificates curl python3 \
@@ -13,12 +13,12 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-# ── Install all dependencies ──
+# Install all dependencies
 FROM web-base AS deps
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# ── Build Next.js ──
+# Build Next.js
 FROM web-base AS builder
 ARG DATABASE_URL
 ARG DATABASE_SSL=false
@@ -29,7 +29,7 @@ COPY . .
 RUN mkdir -p public
 RUN npm run build
 
-# ── Web runner: standalone Next.js server ──
+# Web runner: standalone Next.js server
 FROM web-base AS web-runner
 ENV NODE_ENV=production
 ENV PORT=3000
@@ -42,7 +42,7 @@ COPY --from=builder /app/public ./public
 EXPOSE 3000
 CMD ["node", "server.js"]
 
-# ── Task runner: full source + toolchain for pipeline scripts ──
+# Task runner: full source + toolchain for pipeline scripts
 FROM task-base AS task-runner
 ENV NODE_ENV=development
 

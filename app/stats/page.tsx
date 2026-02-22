@@ -12,7 +12,7 @@ import ViralVsTasty from '@/app/components/stats/ViralVsTasty';
 import ClarityRichnessMatrix from '@/app/components/stats/ClarityRichnessMatrix';
 
 export const metadata: Metadata = {
-  title: 'The Stew Lab — Stewthius',
+  title: 'The Stew Lab - Stewthius',
   description:
     'Deep cuts from the broth. Does garbage make better soup? Does TikTok prefer bad stew? The data has answers.',
 };
@@ -67,7 +67,7 @@ export default async function StatsPage() {
           </h2>
           <p className="text-sm text-muted-foreground max-w-xl mx-auto mb-4">
             Using AI embeddings, we gave every video a &ldquo;vibe check&rdquo; and mapped the
-            entire history of the stew into distinct eras — The Hearty Winter Broth era, The
+            entire history of the stew into distinct eras: The Hearty Winter Broth era, The
             Too Much Acid dark ages, and beyond.
           </p>
           <Link

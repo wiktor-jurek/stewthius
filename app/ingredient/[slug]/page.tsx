@@ -23,10 +23,10 @@ interface IngredientPageProps {
 export async function generateMetadata({ params }: IngredientPageProps): Promise<Metadata> {
   const { slug } = await params;
   const ingredient = await getIngredientBySlug(slug);
-  if (!ingredient) return { title: 'Ingredient Not Found — Stewthius' };
+  if (!ingredient) return { title: 'Ingredient Not Found - Stewthius' };
 
   return {
-    title: `${ingredient.name} — Stewthius`,
+    title: `${ingredient.name} - Stewthius`,
     description: `How does ${ingredient.name} affect the perpetual stew? Contribution history, flavor impact, prep styles, and more.`,
   };
 }

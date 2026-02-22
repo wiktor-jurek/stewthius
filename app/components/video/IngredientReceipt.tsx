@@ -52,7 +52,7 @@ export default function IngredientReceipt({ ingredients, day }: IngredientReceip
           🧾 What Went In
         </CardTitle>
         <CardDescription>
-          Day {day}&apos;s ingredient additions — the full receipt
+          Day {day}&apos;s ingredient additions, the full receipt
         </CardDescription>
       </CardHeader>
       <CardContent>

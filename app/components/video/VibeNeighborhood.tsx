@@ -16,7 +16,7 @@ export default function VibeNeighborhood({ similarVideos }: VibeNeighborhoodProp
           🧬 The Vibe Neighborhood
         </CardTitle>
         <CardDescription>
-          Days with the most mathematically similar &ldquo;vibe&rdquo; — found via vector embeddings, not calendar order
+          Days with the most mathematically similar &ldquo;vibe&rdquo;, found via vector embeddings, not calendar order
         </CardDescription>
       </CardHeader>
       <CardContent>

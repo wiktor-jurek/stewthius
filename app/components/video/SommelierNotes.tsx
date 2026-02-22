@@ -23,7 +23,7 @@ export default function SommelierNotes({ video }: SommelierNotesProps) {
               &ldquo;{video.keyQuote}&rdquo;
             </p>
             <footer className="text-xs text-muted-foreground mt-2">
-              — Day {video.day} Transcript
+              - Day {video.day} Transcript
             </footer>
           </blockquote>
         )}

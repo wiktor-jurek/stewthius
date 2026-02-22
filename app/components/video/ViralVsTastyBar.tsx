@@ -35,7 +35,7 @@ export default function ViralVsTastyBar({ data, day }: ViralVsTastyBarProps) {
           🎯 Viral vs. Tasty
         </CardTitle>
         <CardDescription>
-          How does Day {day} rank — for TikTok <em>and</em> for the stew?
+          How does Day {day} rank for TikTok <em>and</em> for the stew?
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

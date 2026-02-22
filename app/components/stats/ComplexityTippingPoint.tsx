@@ -91,7 +91,7 @@ const ComplexityTippingPoint = ({ ratings }: ComplexityTippingPointProps) => {
         </h2>
         <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
           At what point do too many flavors make the stew taste like absolutely nothing?
-          Every chef knows that mixing every color of paint gives you brown — does the
+          Every chef knows that mixing every color of paint gives you brown. Does the
           same apply to soup?
         </p>
       </div>

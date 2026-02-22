@@ -87,7 +87,7 @@ const ClarityRichnessMatrix = ({ data }: ClarityRichnessMatrixProps) => {
         </h2>
         <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
           Does a thick, murky soup taste better than a clear broth? Each dot is a day in the
-          stew&apos;s life — colored by how Zak felt about the result.
+          stew&apos;s life, colored by how Zak felt about the result.
         </p>
       </div>
 
@@ -251,7 +251,7 @@ const ClarityRichnessMatrix = ({ data }: ClarityRichnessMatrixProps) => {
           it&apos;s boring. If it&apos;s too thick, it&apos;s sludge. But right in the
           middle sits the{' '}
           <span className="font-semibold text-herb-green not-italic">Zone of Perfection</span>{' '}
-          — where the green dots cluster. That&apos;s perpetual soup heaven.
+          where the green dots cluster. That&apos;s perpetual soup heaven.
         </p>
       </div>
     </div>

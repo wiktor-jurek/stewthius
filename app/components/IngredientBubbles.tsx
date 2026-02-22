@@ -181,7 +181,7 @@ const IngredientBubbles = ({ popular, mvp }: IngredientBubblesProps) => {
           🫧 What&apos;s in the Pot
         </h2>
         <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-          The bigger the bubble, the more it&apos;s been tossed in. Push them around —
+          The bigger the bubble, the more it&apos;s been tossed in. Push them around,
           they don&apos;t bite.
         </p>
       </div>

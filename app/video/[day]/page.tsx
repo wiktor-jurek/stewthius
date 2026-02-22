@@ -24,13 +24,13 @@ interface VideoPageProps {
 export async function generateMetadata({ params }: VideoPageProps): Promise<Metadata> {
   const { day: dayStr } = await params;
   const day = parseInt(dayStr, 10);
-  if (isNaN(day)) return { title: 'Not Found — Stewthius' };
+  if (isNaN(day)) return { title: 'Not Found - Stewthius' };
 
   const video = await getVideoDetailByDay(day);
-  if (!video) return { title: 'Not Found — Stewthius' };
+  if (!video) return { title: 'Not Found - Stewthius' };
 
   return {
-    title: `Day ${day} — Stewthius`,
+    title: `Day ${day} - Stewthius`,
     description: video.keyQuote
       ? `Day ${day} of the perpetual stew: "${video.keyQuote}"`
       : `Day ${day} of the perpetual stew. Rated ${video.ratingOverall}/10. ${video.creatorSentiment}.`,

@@ -37,7 +37,7 @@ export default function DailyDelta({ deltas, sentiment, ratingInferred }: DailyD
           📈 The Daily Delta
         </CardTitle>
         <CardDescription>
-          The stock ticker of soup — did today make the stew better or worse?
+          The stock ticker of soup. Did today make the stew better or worse?
         </CardDescription>
       </CardHeader>
       <CardContent>

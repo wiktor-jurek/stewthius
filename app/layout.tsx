@@ -14,24 +14,24 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Stewthius — The Perpetual Stew Chronicle",
+  title: "Stewthius - The Perpetual Stew Chronicle",
   description: "The data-driven chronicle of the internet's most ambitious perpetual stew. Track ingredients, taste the community's sentiment, and explore what's cooking.",
   openGraph: {
-    title: "Stewthius — The Perpetual Stew Chronicle",
+    title: "Stewthius - The Perpetual Stew Chronicle",
     description: "The data-driven chronicle of the internet's most ambitious perpetual stew. Track ingredients, taste the community's sentiment, and explore what's cooking.",
     images: [
       {
         url: "https://stewthius.com/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Stewthius — The Perpetual Stew Chronicle",
+        alt: "Stewthius - The Perpetual Stew Chronicle",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Stewthius — The Perpetual Stew Chronicle",
+    title: "Stewthius - The Perpetual Stew Chronicle",
     description: "The data-driven chronicle of the internet's most ambitious perpetual stew. Track ingredients, taste the community's sentiment, and explore what's cooking.",
     images: ["https://stewthius.com/og-image.jpg"],
   },

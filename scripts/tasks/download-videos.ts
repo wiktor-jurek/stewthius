@@ -256,7 +256,7 @@ async function main() {
           COOLDOWN_AFTER_CONSECUTIVE_FAILURES / 1000,
         );
         console.warn(
-          `${consecutiveFailures} consecutive failures — cooling down for ${cooldownSec}s to avoid rate limit...`,
+          `${consecutiveFailures} consecutive failures, cooling down for ${cooldownSec}s to avoid rate limit...`,
         );
         await sleep(COOLDOWN_AFTER_CONSECUTIVE_FAILURES);
         consecutiveFailures = 0;

@@ -273,7 +273,7 @@ const VideoTable = ({ videos }: VideoTableProps) => {
       cell: ({ row }) => {
         const quote = row.getValue('keyQuote') as string;
         const sentiment = row.original.sentiment?.toLowerCase();
-        if (!quote) return <span className="text-muted-foreground hidden md:inline">—</span>;
+        if (!quote) return <span className="text-muted-foreground hidden md:inline">-</span>;
 
         const quoteStyle =
           sentiment === 'negative' || sentiment === 'super negative'
@@ -323,7 +323,7 @@ const VideoTable = ({ videos }: VideoTableProps) => {
           📝 The Tasting Notes
         </CardTitle>
         <CardDescription>
-          Every chapter of the stew&apos;s story — ratings, sentiment, and ingredients from each day
+          Every chapter of the stew&apos;s story: ratings, sentiment, and ingredients from each day
         </CardDescription>
       </CardHeader>
       <CardContent>
