@@ -12,35 +12,35 @@ export const CACHE_TAGS = {
 
 // Individual cache invalidation functions
 export async function invalidateStewRatings() {
-  await revalidateTag("stew-ratings");
-  await revalidateTag(CACHE_TAGS.RATINGS);
+  await revalidateTag("stew-ratings", "/");
+  await revalidateTag(CACHE_TAGS.RATINGS, "/");
 }
 
 export async function invalidateCurrentStats() {
-  await revalidateTag("current-stats");
-  await revalidateTag(CACHE_TAGS.STATS);
+  await revalidateTag("current-stats", "/");
+  await revalidateTag(CACHE_TAGS.STATS, "/");
 }
 
 export async function invalidateIngredients() {
-  await revalidateTag("popular-ingredients");
-  await revalidateTag("mvp-ingredients");
-  await revalidateTag(CACHE_TAGS.INGREDIENTS);
+  await revalidateTag("popular-ingredients", "/");
+  await revalidateTag("mvp-ingredients", "/");
+  await revalidateTag(CACHE_TAGS.INGREDIENTS, "/");
 }
 
 export async function invalidateSentiment() {
-  await revalidateTag("sentiment-distribution");
-  await revalidateTag(CACHE_TAGS.SENTIMENT);
+  await revalidateTag("sentiment-distribution", "/");
+  await revalidateTag(CACHE_TAGS.SENTIMENT, "/");
 }
 
 export async function invalidateVideos() {
-  await revalidateTag("latest-video");
-  await revalidateTag("all-videos-analysis");
-  await revalidateTag(CACHE_TAGS.VIDEOS);
+  await revalidateTag("latest-video", "/");
+  await revalidateTag("all-videos-analysis", "/");
+  await revalidateTag(CACHE_TAGS.VIDEOS, "/");
 }
 
 // Invalidate all stew-related data
 export async function invalidateAllStewData() {
-  await revalidateTag(CACHE_TAGS.STEW_DATA);
+  await revalidateTag(CACHE_TAGS.STEW_DATA, "/");
 }
 
 // Invalidate specific data types when you know what changed
