@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 import { and, asc, eq, isNull, or, sql } from "drizzle-orm";
 import { db, schema } from "../../lib/db/client";
 import { downloadFromB2 } from "../../lib/b2";
+import { revalidateCache } from "./revalidate-cache";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
@@ -1162,8 +1163,10 @@ if (isEntrypoint) {
   runAnalyzeTask({
     reprocessFailed: args.has("--reprocess-failed"),
     includeProcessedWithoutTranscript: args.has("--backfill-transcripts"),
-  }).catch((error) => {
-    console.error("Analyzer task failed:", error);
-    process.exitCode = 1;
-  });
+  })
+    .then(() => revalidateCache("all"))
+    .catch((error) => {
+      console.error("Analyzer task failed:", error);
+      process.exitCode = 1;
+    });
 }

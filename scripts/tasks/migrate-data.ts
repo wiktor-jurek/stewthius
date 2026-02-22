@@ -3,6 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Pool } from "pg";
+import { revalidateCache } from "./revalidate-cache";
 
 function loadLocalEnvFile() {
   const envPath = path.resolve(process.cwd(), ".env");
@@ -429,7 +430,9 @@ async function migrateData() {
   }
 }
 
-migrateData().catch((error) => {
-  console.error("Data migration task failed:", error);
-  process.exit(1);
-});
+migrateData()
+  .then(() => revalidateCache("all"))
+  .catch((error) => {
+    console.error("Data migration task failed:", error);
+    process.exit(1);
+  });

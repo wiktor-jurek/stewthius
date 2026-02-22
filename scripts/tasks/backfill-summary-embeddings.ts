@@ -2,6 +2,7 @@
 
 import { eq, isNull, sql } from "drizzle-orm";
 import { db, schema } from "../../lib/db/client";
+import { revalidateCache } from "./revalidate-cache";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_EMBED_MODEL =
@@ -188,6 +189,7 @@ async function main() {
   }
 
   console.log(`Done. Success=${success} Failed=${failed}`);
+  await revalidateCache("all");
 }
 
 main().catch((error) => {

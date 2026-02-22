@@ -11,7 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "task:download-videos": "tsx scripts/tasks/download-videos.ts",
     "task:analyze-videos": "tsx scripts/tasks/analyze-videos.ts",
-    "task:ingest": "npm run task:download-videos && npm run task:analyze-videos",
+    "task:ingest": "npm run task:download-videos && npm run task:analyze-videos && npm run task:revalidate-cache",
     "task:pipeline": "tsx scripts/tasks/pipeline.ts",
     "task:revalidate-cache": "tsx scripts/tasks/revalidate-cache.ts",
     "task:backfill-transcripts": "tsx scripts/tasks/backfill-transcripts.ts",

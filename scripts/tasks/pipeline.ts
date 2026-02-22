@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 
 import { spawn } from "node:child_process";
+import { revalidateCache } from "./revalidate-cache";
 
 const PIPELINE_REVALIDATE = process.env.PIPELINE_REVALIDATE ?? "true";
 
@@ -33,7 +34,7 @@ async function main() {
 
   if (shouldRevalidate()) {
     console.log("Running cache revalidation...");
-    await run("npm", ["run", "task:revalidate-cache"]);
+    await revalidateCache("all");
   } else {
     console.log("Skipping cache revalidation (PIPELINE_REVALIDATE=false).");
   }
